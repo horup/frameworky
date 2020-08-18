@@ -1,0 +1,17 @@
+{
+  "name": "frameworky",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "tsc --watch --d --declarationMap"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/three": "^0.103.2",
+    "three": "^0.119.1",
+    "typescript": "^3.9.7"
+  }
+}
