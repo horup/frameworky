@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import { Command } from './Command';
 import { State } from './State';
+import { EventDispatcher } from 'three';
 
 export class Frameworky
 {
@@ -46,23 +47,35 @@ export class Frameworky
             if (this.meshes[entityId] == null)
             {
                 console.log(e);
-                const m = new THREE.Mesh(new THREE.SphereGeometry(e.radius), new THREE.MeshNormalMaterial());
+                const m = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial());
                 this.meshes[entityId] = m;
                 this.scene.add(m);
                 console.log("added");
             }
-
-            if (e.position != null)
+            const m = this.meshes[entityId];
+            if (e.radius)
             {
-                this.meshes[entityId].position.set(e.position.x, e.position.y, e.position.z);
+                const s = e.radius;
+                m.scale.set(s, s, s);
             }
+            if (e.position)
+            {
+                m.position.set(e.position.x, e.position.y, e.position.z);
+            }
+           
         }
     }
 
+    dispatcher:EventDispatcher = new EventDispatcher(); 
+    onBeginFrame(f:(framework:this)=>any)
+    {
+        this.dispatcher.addEventListener("onBeginFrame", (e)=>f(this));
+    }
 
     private onAnimationFrame()
     {
         window.requestAnimationFrame(()=>this.onAnimationFrame());
+        this.dispatcher.dispatchEvent({type:"onBeginFrame"});
         this.syncMeshes();
 
         this.renderer.render(this.scene, this.camera);
