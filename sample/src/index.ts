@@ -8,6 +8,21 @@ f.initialize(()=>{
 
     const entities:Entities = {};
     let id = 0;
+    entities[id++] = {
+        position:
+        {
+            x:0,
+            y:0,
+            z:10
+        },
+        velocity:{
+            x:0.1,
+            y:0,
+            z:0
+        },
+        camera:{},
+        direction:{x:0, y:0, z:-1}
+    }
     for (let y = 0; y < 5; y++)
     {
         for (let x = 0; x < 5; x++)
@@ -30,4 +45,17 @@ f.initialize(()=>{
             }
         }
     })*/
+}).onKeyDown(e=>{
+    const [id, cam] = f.firstEntity(e=>e.camera != null);
+    const speed = 0.5;
+    //cam.position.x += speed;
+    const newX =  cam.position.x + speed;
+    f.executeCommand({
+        spreadEntities:{
+            entities:{[id]:{position:{x:newX}}}
+        }
+    })
+    
+}).onKeyUp(e=>{
+    console.log(e);
 })

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Command } from './Command';
 import { State } from './State';
 import { EventDispatcher } from 'three';
+import { Camera, Entity } from './Entity';
 
 export class Frameworky
 {
@@ -30,7 +31,7 @@ export class Frameworky
 
         this.state = {entities:{}};
 
-        this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 10 );
+        this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
         this.camera.position.z = 1;
         this.scene = new THREE.Scene();
 
@@ -46,11 +47,9 @@ export class Frameworky
             const e = this.state.entities[entityId];
             if (this.meshes[entityId] == null)
             {
-                console.log(e);
                 const m = new THREE.Mesh(new THREE.SphereGeometry(1), new THREE.MeshNormalMaterial());
                 this.meshes[entityId] = m;
                 this.scene.add(m);
-                console.log("added");
             }
             const m = this.meshes[entityId];
             if (e.radius)
@@ -66,10 +65,32 @@ export class Frameworky
         }
     }
 
+    private syncCamera()
+    {
+        const cam = Object.values(this.state.entities).filter(e=>e.camera != null)[0];
+        if (cam)
+        {
+            this.camera.position.set(cam.position.x, cam.position.y, cam.position.z);
+        }
+    }
+
     dispatcher:EventDispatcher = new EventDispatcher(); 
-    onBeginFrame(f:(framework:this)=>any)
+    onBeginFrame(f:(framework:this)=>any):this
     {
         this.dispatcher.addEventListener("onBeginFrame", (e)=>f(this));
+        return this;
+    }
+
+    onKeyDown(f:(e:KeyboardEvent)=>any):this
+    {
+        document.addEventListener("keydown", f);
+        return this;
+    }
+
+    onKeyUp(f:(e:KeyboardEvent)=>any):this
+    {
+        document.addEventListener("keyup", f);
+        return this;
     }
 
     private onAnimationFrame()
@@ -77,17 +98,65 @@ export class Frameworky
         window.requestAnimationFrame(()=>this.onAnimationFrame());
         this.dispatcher.dispatchEvent({type:"onBeginFrame"});
         this.syncMeshes();
+        this.syncCamera();
 
         this.renderer.render(this.scene, this.camera);
     }
 
-    executeCommand(command:Command)
+    foreachEntity(f:(id:number, entity:Entity)=>any, pred?:(e:Entity)=>boolean)
+    {
+        for (const id in this.state.entities)
+        {
+            const e = this.state.entities[id];
+            if (pred == null || pred(e))
+            {
+                f(id as any, e);
+            }
+        }
+    }
+
+    firstEntity(pred:(e:Entity)=>boolean)
+    {
+        for (const id in this.state.entities)
+        {
+            const e = this.state.entities[id];
+            if (pred(e))
+            {
+                return [parseInt(id), e] as const;
+            }
+        }
+
+        return null;
+    }
+
+    executeCommand(command:Command):this
     {
         if (command.setEntities)
         {
             this.state.entities = {...command.setEntities.entities};
             console.log(this.state.entities);
         }
+        else if (command.spreadEntities)
+        {
+            const es = command.spreadEntities.entities;
+            for (const id in es)
+            {
+                const source = es[id];
+                let target = this.state.entities[id];
+                if (!target)
+                {
+                    target = {};
+                    this.state.entities[id] = target;
+                }
+
+                for (let k in source)
+                {
+                    target[k] = {...target[k], ...source[k]};
+                }
+            }
+        }
+
+        return this;
     }
 
 

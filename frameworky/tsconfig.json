@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
         "outDir": "dist",
-        "lib": ["es2016", "DOM"]
+        "lib": ["ES2018", "DOM"]
     }
 }

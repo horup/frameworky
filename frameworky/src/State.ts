@@ -1,4 +1,4 @@
-import { Entities } from "./Entity";
+import { Entities, Camera } from "./Entity";
 
 export interface State
 {
