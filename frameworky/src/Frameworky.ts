@@ -171,8 +171,6 @@ export class Frameworky
         {
             const c = command.interpolateEntity;
             const now = this.now();
-            if (!c.start)
-                c.start = now;
             const start = c.start;
             const end = c.end;
             const L = end - start;

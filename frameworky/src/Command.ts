@@ -22,6 +22,6 @@ export interface InterpolateEntityCommand
     id:number;
     from:Entity;
     to:Entity;
-    start?:number;
+    start:number;
     end:number;
 }
