@@ -171,8 +171,8 @@ export class Frameworky
         {
             const c = command.interpolateEntity;
             const now = this.now();
-            const from = c.from;
-            const to = c.to;
+            if (!c.start)
+                c.start = now;
             const start = c.start;
             const end = c.end;
             const L = end - start;
@@ -182,15 +182,18 @@ export class Frameworky
             const e = this.state.entities[c.id];
             if (e)
             {
-                if (e.position && c.from.position && c.to.position)
+                if (start < now)
                 {
-                    const x = c.to.position.x - c.from.position.x;
-                    const y = c.to.position.y - c.from.position.y;
-                    const z = c.to.position.z - c.from.position.z;
+                    if (e.position && c.from.position && c.to.position)
+                    {
+                        const x = c.to.position.x - c.from.position.x;
+                        const y = c.to.position.y - c.from.position.y;
+                        const z = c.to.position.z - c.from.position.z;
 
-                    e.position.x = c.from.position.x + x * delta;
-                    e.position.y = c.from.position.y + y * delta;
-                    e.position.z = c.from.position.z + z * delta;
+                        e.position.x = c.from.position.x + x * delta;
+                        e.position.y = c.from.position.y + y * delta;
+                        e.position.z = c.from.position.z + z* delta;
+                    }
                 }
                 if (command.interpolateEntity.end > now)
                     this.enqueueCommand(command);

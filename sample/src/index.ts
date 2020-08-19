@@ -69,6 +69,20 @@ f.initialize(()=>{
             }
         }
     })
+
+    f.enqueueCommand({
+        interpolateEntity:{
+            id:id,
+            start:f.now()+1,
+            end:f.now() + 2,
+            from:{
+                position:{x:10, y:0, z:10}
+            },
+            to:{
+                position:{x:0, y:0, z:10}
+            }
+        }
+    })
     
 }).onKeyUp(e=>{
     console.log(e);
