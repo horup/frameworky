@@ -1,22 +1,22 @@
 export interface Position
 {
-    x?:number;
-    y?:number;
-    z?:number;
+    x:number;
+    y:number;
+    z:number;
 }
 
 export interface Direction
 {
-    x?:number;
-    y?:number;
-    z?:number;
+    x:number;
+    y:number;
+    z:number;
 }
 
 export interface Velocity
 {
-    x?:number;
-    y?:number;
-    z?:number;
+    x:number;
+    y:number;
+    z:number;
 }
 
 export interface Entity

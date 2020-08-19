@@ -31,7 +31,7 @@ f.initialize(()=>{
         }
     }
 
-    f.executeCommand({
+    f.enqueueCommand({
         setEntities:{
             entities:entities
         }
@@ -49,10 +49,24 @@ f.initialize(()=>{
     const [id, cam] = f.firstEntity(e=>e.camera != null);
     const speed = 0.5;
     //cam.position.x += speed;
-    const newX =  cam.position.x + speed;
+  /*  const newX =  cam.position.x + speed;
     f.executeCommand({
         spreadEntities:{
             entities:{[id]:{position:{x:newX}}}
+        }
+    })*/
+
+    f.enqueueCommand({
+        interpolateEntity:{
+            id:id,
+            start:f.now(),
+            end:f.now() + 1,
+            from:{
+                position:{x:0, y:0, z:10}
+            },
+            to:{
+                position:{x:10, y:0, z:10}
+            }
         }
     })
     

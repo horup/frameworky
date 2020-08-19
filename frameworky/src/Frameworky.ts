@@ -6,11 +6,13 @@ import { Camera, Entity } from './Entity';
 
 export class Frameworky
 {
+    private commandQueue:Command[] = []
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;
     private state:State;
     private meshes:{[id:number]:THREE.Mesh} = {};
+    
 
     /**Initialized Frameworky, such that it is ready to run a game */
     initialize(onInitialized:()=>any):Frameworky
@@ -37,7 +39,13 @@ export class Frameworky
 
         onInitialized();
 
+        console.log(this.now());
         return this;
+    }
+
+    now()
+    {
+        return performance.now() / 1000;
     }
 
     private syncMeshes()
@@ -96,6 +104,10 @@ export class Frameworky
     private onAnimationFrame()
     {
         window.requestAnimationFrame(()=>this.onAnimationFrame());
+        const cmds = this.commandQueue;
+        this.commandQueue = [];
+        cmds.forEach((v)=>this.executeCommand(v));
+        
         this.dispatcher.dispatchEvent({type:"onBeginFrame"});
         this.syncMeshes();
         this.syncCamera();
@@ -155,7 +167,43 @@ export class Frameworky
                 }
             }
         }
+        else if (command.interpolateEntity)
+        {
+            const c = command.interpolateEntity;
+            const now = this.now();
+            const from = c.from;
+            const to = c.to;
+            const start = c.start;
+            const end = c.end;
+            const L = end - start;
+            const D = end - now;
+            let delta = 1 - D/L;
+            delta = delta < 0 ? 0 : delta > 1 ? 1 : delta; 
+            const e = this.state.entities[c.id];
+            if (e)
+            {
+                if (e.position && c.from.position && c.to.position)
+                {
+                    const x = c.to.position.x - c.from.position.x;
+                    const y = c.to.position.y - c.from.position.y;
+                    const z = c.to.position.z - c.from.position.z;
 
+                    e.position.x = c.from.position.x + x * delta;
+                    e.position.y = c.from.position.y + y * delta;
+                    e.position.z = c.from.position.z + z * delta;
+                }
+                if (command.interpolateEntity.end > now)
+                    this.enqueueCommand(command);
+            }
+
+        }
+
+        return this;
+    }
+
+    enqueueCommand(command:Command):this
+    {
+        this.commandQueue.push(command);
         return this;
     }
 
