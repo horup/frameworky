@@ -1,44 +1,42 @@
-export interface Position
+
+export interface IdentifiableEntity
 {
+    id:number;
+}
+
+
+export interface SpatialEntity extends IdentifiableEntity
+{
+    isSpatial:true;
     x:number;
     y:number;
     z:number;
+    vx:number;
+    vy:number;
+    vz:number;
+    dx:number;
+    dy:number;
+    dz:number;
 }
 
-export interface Direction
+export interface SphericalEntity extends SpatialEntity
 {
-    x:number;
-    y:number;
-    z:number;
+    isSpherical:true;
+    radius:number;
 }
 
-export interface Velocity
+export interface BoxedEntity extends SpatialEntity
 {
-    x:number;
-    y:number;
-    z:number;
+    isBoxed:true;
+    w:number;
+    h:number;
+    d:number;
 }
 
-export interface Entity
+export interface CameraEntity extends SpatialEntity
 {
-    /**Position, if any, of the entity */
-    position?:Position;
-
-    /**The pointing direction, if any, of the entity */
-    direction?:Direction;
-
-    /**The Velocity of the Entity, if any */
-    velocity?:Velocity;
-
-    /**Radius, if any, of the entity */
-    radius?:number;
-
-    /**Attached Camera, if any, of the entity */
-    camera?:Camera;
+    isCamera:true;
 }
 
-export interface Camera
-{
-}
-
+export type Entity = IdentifiableEntity & Partial<SpatialEntity> & Partial<SphericalEntity> & Partial<CameraEntity> & Partial<BoxedEntity>;
 export type Entities = {[id:number]:Entity};
