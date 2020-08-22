@@ -1,11 +1,12 @@
 import * as THREE from 'three';
 import { EventDispatcher } from 'three';
-import { CameraEntity, Entity, SphericalEntity, SpatialEntity, BoxedEntity } from './Entity';
 import { System, SystemCommand } from './System';
 import { THREESystem } from './systems/THREESystem';
 import { BodySystem } from './systems';
+import { BaseEntity } from './BaseEntity';
+import { EntityManager } from './EntityManager';
 
-export class Frameworky
+export class Frameworky<Entity extends BaseEntity>
 {
     private usedEntities:number[] = [];
     private freeEntities:number[] = [];
@@ -13,8 +14,15 @@ export class Frameworky
     private systems:System[] = [];
     private commandQueue:any[] = [];
 
+    entityManager:EntityManager<Entity>;
+
+    constructor(newEntity:new (id:number)=>Entity)
+    {
+        this.entityManager = new EntityManager<Entity>(newEntity);
+    }
+
     /**Initialized Frameworky, such that it is ready to run a game */
-    initialize(onInitialized:()=>any):Frameworky
+    initialize(onInitialized:()=>any):Frameworky<Entity>
     {
         this.addDefaultSystems();
         onInitialized();
@@ -47,11 +55,6 @@ export class Frameworky
             const id = this
         }
     }*/
-
-    newId():number
-    {
-        return this.nextId++;
-    }
 
     now()
     {
@@ -91,6 +94,4 @@ export class Frameworky
         this.commandQueue.push(command);
         return this;
     }
-
-
 }

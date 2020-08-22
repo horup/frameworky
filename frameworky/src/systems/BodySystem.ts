@@ -31,12 +31,10 @@ export class BodySystem implements System
         if (command.deleteEntity)
         {
             delete this.bodies[command.deleteEntity.id];
-            console.log(this.bodies);
         }
         if (command.setBody)
         {
             this.bodies[command.setBody.id] = command.setBody.body;
-            console.log(this.bodies);
         }
         if (command.tick)
         {

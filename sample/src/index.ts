@@ -1,20 +1,34 @@
-import {Frameworky, BodySystem, BodySystemCommand} from 'frameworky';
-import { Entity, CameraEntity, SpatialEntity, SphericalEntity, BoxedEntity } from 'frameworky/dist/Entity';
+//import {Frameworky, BodySystem, BodySystemCommand, Entity} from 'frameworky';
 
-const f = new Frameworky();
-f.initialize(()=>{
-    f.executeCommand<BodySystemCommand>({
-        setBody:{
-            id:0,
-            body:{x:0,y:0,vx:0.1,vy:0}
-        }
+import {EntityManager, BaseEntity, Component} from 'frameworky';
+
+interface Health
+{
+    amount:number;
+}
+
+class Entity extends BaseEntity
+{
+    health = new Component<Health>(this);
+}
+
+let s = new EntityManager<Entity>(Entity);
+let max = 1000000;
+let now = performance.now();
+
+for (let i = 0 ; i < max; i++)
+{
+    const e = s.new();
+    e.position.attach({
+        x:i,
+        y:0
+    });
+    e.circular.attach({
+        radius:0.5
+    });
+    e.health.attach({
+        amount:100
     })
+}
 
-    f.executeCommand<BodySystemCommand>({
-        setBody:{
-            id:1,
-            body:{x:10,y:0,vx:-0.1,vy:0}
-        }
-    })
-
-});
+console.log("Creation of " + s.size + " took " + (performance.now() - now));
