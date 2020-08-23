@@ -1,19 +1,14 @@
-import { Component, Circular } from ".";
+import { Component, Transform, Body, Camera } from ".";
 
 export class BaseEntity
 {
-    id:number;
+    readonly id:number;
     constructor(id:number)
     {
         this.id = id;
     }
 
-    readonly position = new Component<Position>(this);
-    readonly circular = new Component<Circular>(this);
+    readonly transform = new Component<Transform>(this);
     readonly body = new Component<Body>(this);
-
-    serialize()
-    {
-        
-    }
+    readonly camera = new Component<Camera>(this);
 }

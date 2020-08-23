@@ -13,10 +13,11 @@ export class EntityManager<E extends BaseEntity = BaseEntity>
 
     private nextId = 0;
     private entities = new Map<number, E>(); 
-    forEach(f:(e:E)=>void)
+    forEach(f:(e:E)=>void, pred?:(e:E)=>boolean)
     {
         this.entities.forEach((e, id)=>{
-            f(e);
+            if (pred == null || pred(e))
+                f(e);
         })
     }
 

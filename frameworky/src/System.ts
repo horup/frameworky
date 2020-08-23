@@ -1,16 +1,10 @@
 import { Frameworky } from "./Frameworky";
-import { BaseEntity } from ".";
+import { BaseEntity, BaseCommand } from ".";
 
-export interface SystemCommand
+export interface System<Entity extends BaseEntity = BaseEntity, Command extends BaseCommand = BaseCommand>
 {
-    deleteEntity?:{id:number};
-    tick?:{dt:number}
-}
-
-export interface System<Entity extends BaseEntity>
-{
-    init(f:Frameworky<Entity>);
-    executeCommand<T>(f:Frameworky<Entity>, command:SystemCommand);
+    init(f:Frameworky<Entity,Command>);
+    executeCommand(f:Frameworky<Entity,Command>, command:Command);
 }
 
 /*

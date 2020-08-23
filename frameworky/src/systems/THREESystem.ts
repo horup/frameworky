@@ -1,17 +1,19 @@
 import { System } from "../System";
 import { Frameworky } from "../Frameworky";
 import * as THREE from 'three';
-import { BodySystemCommand, Bodies } from "./BodySystem";
+import { BaseEntity } from "../BaseEntity";
+import { Transform } from "../components";
+import { BaseCommand } from '../BaseCommand';
 
-export class THREESystem implements System
+export class THREESystem implements System<BaseEntity, BaseCommand>
 {
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;
     private meshes:{[id:number]:THREE.Mesh} = {};
-    private f:Frameworky;
+    private f:Frameworky<BaseEntity, BaseCommand>;
     private tickrate = 500;
-    init(f: Frameworky) 
+    init(f: Frameworky<BaseEntity, BaseCommand>) 
     {
         this.f = f;
         const s = document.getElementsByTagName("body")[0];
@@ -34,14 +36,21 @@ export class THREESystem implements System
         setInterval(()=>this.onTick(), this.tickrate);
     }
 
-    bodies:Bodies = {};
+    private prevPosition:{[id:number]:Transform} = {};
 
-    executeCommand(f: Frameworky, command:BodySystemCommand) 
+    executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command:BaseCommand) 
     {
-        if (command.helloFromBodySystem)
+        if (command.tick)
+        {
+            console.log("three");
+            f.entityManager.forEach(e=>{
+                this.prevPosition[e.id] = {...e.transform.get()};
+            }, e=>e.transform.has);
+        }
+       /* if (command.helloFromBodySystem)
         {
             this.bodies = command.helloFromBodySystem.bodies;
-        }
+        }*/
     }
 
     private lastTick = performance.now();
@@ -60,23 +69,45 @@ export class THREESystem implements System
 
     private lastFrame = performance.now();
 
+    private lastDiff = 0;
     private onAnimationFrame()
     {
         this.lastFrame = performance.now();
         window.requestAnimationFrame(()=>this.onAnimationFrame());
         const diff = (this.lastFrame - this.lastTick) / this.tickrate;
-        const bodies = this.bodies;
-        for (let id in bodies)
-        {
-            const body = bodies[id];
-            if (!this.meshes[id])
+        
+        this.f.entityManager.forEach(e=>{
+            const transform = e.transform.get();
+            if (this.meshes[e.id] == null)
             {
-                this.meshes[id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
-                this.scene.add(this.meshes[id]);
+                this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
+                this.scene.add(this.meshes[e.id]);
+               
+                //this.meshes[id].position.x = body.px + (body.x - body.px) * diff;
+                //this.meshes[id].position.y = body.py + (body.y - body.py) * diff;
             }
-            this.meshes[id].position.x = body.px + (body.x - body.px) * diff;
-            this.meshes[id].position.y = body.py + (body.y - body.py) * diff;
-        }
+
+            if (this.prevPosition[e.id] == null)
+                this.prevPosition[e.id] = {...transform};
+
+            this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * diff;
+            this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * diff;
+            this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * diff;
+
+            if (e.camera.has && e.camera.get().isActive)
+            {
+                this.camera.position.x = this.meshes[e.id].position.x;//e.transform.get().x;
+                this.camera.position.y = this.meshes[e.id].position.y;//e.transform.get().y;
+                this.camera.position.z = this.meshes[e.id].position.z;e.transform.get().z;
+            }
+
+            if (diff < this.lastDiff)
+            {
+                //this.prevPosition[e.id].x = transform.x;
+            }
+        }, e=>e.transform.has);
+      
+        this.lastDiff = diff;
 
         this.renderer.render(this.scene, this.camera);
     }

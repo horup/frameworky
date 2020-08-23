@@ -1,34 +1,16 @@
 import { System, SystemCommand } from "../System";
 import { Frameworky } from "../Frameworky";
+import { BaseEntity } from "../BaseEntity";
 
-export interface Body
+
+export class BodySystem implements System<BaseEntity>
 {
-    px:number;
-    py:number;
-    x:number;
-    y:number;
-    vx:number;
-    vy:number;
-}
-
-export type Bodies = {[id:number]:Body};
-
-export interface BodySystemCommand extends SystemCommand
-{
-    setBody?:{id:number, body:Body};
-    helloFromBodySystem?:{bodies:Bodies};
-}
-
-export class BodySystem implements System
-{
-    bodies:Bodies = {};
-    
-    init(f: Frameworky) {
+    init(f: Frameworky<BaseEntity>) {
     }
 
-    executeCommand(f: Frameworky, command: BodySystemCommand) 
+    executeCommand(f: Frameworky<BaseEntity>, command: any) 
     {
-        if (command.deleteEntity)
+       /* if (command.deleteEntity)
         {
             delete this.bodies[command.deleteEntity.id];
         }
@@ -50,6 +32,6 @@ export class BodySystem implements System
                     bodies:this.bodies
                 }
             })
-        }
+        }*/
     }
 }
