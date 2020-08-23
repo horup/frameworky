@@ -42,7 +42,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     {
         if (command.tick)
         {
-            console.log("three");
             f.entityManager.forEach(e=>{
                 this.prevPosition[e.id] = {...e.transform.get()};
             }, e=>e.transform.has);

@@ -33,6 +33,7 @@ class TestSystem implements System<Entity, Command>
 
 const f = new Frameworky<Entity>(Entity);
 f.initialize(()=>{
+    f.addDefaultSystems();
     f.addSystem(new TestSystem());
 
     const camera = f.entityManager.new();

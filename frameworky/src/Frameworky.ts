@@ -18,21 +18,18 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     /**Initialized Frameworky, such that it is ready to run a game */
     initialize(onInitialized:()=>any):this
     {
-        this.addDefaultSystems();
         onInitialized();
         return this;
     }
 
     addSystem(system:System<Entity, Command>)
     {
-        console.log(this.systems);
         this.systems.push(system);
         system.init(this);
     }
 
     addDefaultSystems():this
     {
-        //this.addSystem(new BodySystem());
         this.addSystem(new THREESystem());
         return this;
     }
