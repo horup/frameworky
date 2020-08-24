@@ -97,27 +97,29 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
 
         this.f.entityManager.forEach(e=>{
             const transform = e.transform.get();
-            if (this.meshes[e.id] == null)
+            if (!e.camera.has)
             {
-                this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
-                this.scene.add(this.meshes[e.id]);
-               
-                //this.meshes[id].position.x = body.px + (body.x - body.px) * diff;
-                //this.meshes[id].position.y = body.py + (body.y - body.py) * diff;
+                if (this.meshes[e.id] == null)
+                {
+                    this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
+                    this.scene.add(this.meshes[e.id]);
+                
+                    //this.meshes[id].position.x = body.px + (body.x - body.px) * diff;
+                    //this.meshes[id].position.y = body.py + (body.y - body.py) * diff;
+                }
+
+                if (this.prevPosition[e.id] == null)
+                    this.prevPosition[e.id] = {...transform};
+
+                this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * elapsedFactor;
+                this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * elapsedFactor;
+                this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * elapsedFactor;
             }
-
-            if (this.prevPosition[e.id] == null)
-                this.prevPosition[e.id] = {...transform};
-
-            this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * elapsedFactor;
-            this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * elapsedFactor;
-            this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * elapsedFactor;
-
             if (e.camera.has && e.camera.get().isActive)
             {
-                this.camera.position.x = this.meshes[e.id].position.x;//e.transform.get().x;
-                this.camera.position.y = this.meshes[e.id].position.y;//e.transform.get().y;
-                this.camera.position.z = this.meshes[e.id].position.z;e.transform.get().z;
+                this.camera.position.x = e.transform.get().x;//this.meshes[e.id].position.x;//e.transform.get().x;
+                this.camera.position.y = e.transform.get().y;//this.meshes[e.id].position.y;//e.transform.get().y;
+                this.camera.position.z = e.transform.get().z;//this.meshes[e.id].position.z;e.transform.get().z;
             }
 
             if (elapsedFactor < this.lastDiff)
