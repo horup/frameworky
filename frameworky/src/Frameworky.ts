@@ -4,6 +4,7 @@ import { BaseEntity } from './BaseEntity';
 import { EntityManager } from './EntityManager';
 import {BaseCommand} from './BaseCommand';
 import { PlayerSystem } from './systems/PlayerSystem';
+import { BodySystem } from './systems';
 
 export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
@@ -44,6 +45,7 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     {
         this.addSystem(new THREESystem());
         this.addSystem(new PlayerSystem());
+        this.addSystem(new BodySystem());
 
         return this;
     }

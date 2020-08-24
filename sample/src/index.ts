@@ -27,8 +27,6 @@ class TestSystem implements System<Entity, Command>
                 e.transform.get().x-=0.1;
             }, e=>e.id == 1 && e.transform.has);
         }
-
-        console.log(command);
     }
    
 }

@@ -1,15 +1,20 @@
-import { System, SystemCommand } from "../System";
+import { System } from "../System";
 import { Frameworky } from "../Frameworky";
 import { BaseEntity } from "../BaseEntity";
+import { BaseCommand } from "../BaseCommand";
 
 
-export class BodySystem implements System<BaseEntity>
+export class BodySystem implements System<BaseEntity, BaseCommand>
 {
     init(f: Frameworky<BaseEntity>) {
     }
 
-    executeCommand(f: Frameworky<BaseEntity>, command: any) 
+    executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
     {
+        if (command.fixedUpdate)
+        {
+            
+        }
        /* if (command.deleteEntity)
         {
             delete this.bodies[command.deleteEntity.id];
