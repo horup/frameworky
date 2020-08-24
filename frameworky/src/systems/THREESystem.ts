@@ -39,6 +39,8 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
 
     private prevPosition:{[id:number]:Transform} = {};
 
+    private screenMouse = new THREE.Vector2();
+    private raycaster = new THREE.Raycaster();
     executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command:BaseCommand) 
     {
         if (command.fixedUpdate)
@@ -46,6 +48,16 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             f.entityManager.forEach(e=>{
                 this.prevPosition[e.id] = {...e.transform.get()};
             }, e=>e.transform.has);
+        }
+        else if (command.mouseMove)
+        {
+            const m = command.mouseMove;
+            this.screenMouse.x = m.x / window.innerWidth * 2 - 1;
+            this.screenMouse.y = -(m.y / window.innerHeight * 2 - 1);
+            console.log(this.screenMouse);
+            this.raycaster.setFromCamera(this.screenMouse, this.camera);
+            const t = this.raycaster.intersectObjects(this.scene.children);
+            console.log(t[0]);
         }
        /* if (command.helloFromBodySystem)
         {
