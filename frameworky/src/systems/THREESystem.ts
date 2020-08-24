@@ -12,7 +12,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private scene:THREE.Scene;
     private meshes:{[id:number]:THREE.Mesh} = {};
     private f:Frameworky<BaseEntity, BaseCommand>;
-    private tickrate = 500;
+    private tickRateMS = 500;
     init(f: Frameworky<BaseEntity, BaseCommand>) 
     {
         this.f = f;
@@ -33,14 +33,14 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.scene = new THREE.Scene();
 
         window.requestAnimationFrame(()=>this.onAnimationFrame());
-        setInterval(()=>this.onTick(), this.tickrate);
+        setInterval(()=>this.onTick(), this.tickRateMS);
     }
 
     private prevPosition:{[id:number]:Transform} = {};
 
     executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command:BaseCommand) 
     {
-        if (command.tick)
+        if (command.fixedUpdate)
         {
             f.entityManager.forEach(e=>{
                 this.prevPosition[e.id] = {...e.transform.get()};
@@ -52,29 +52,49 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         }*/
     }
 
-    private lastTick = performance.now();
+   // private lastTick = performance.now() / 1000;
+    private fixedUpdateTime = 0;
+    //private tickNow = 0;
+    private count = 0;
     private onTick()
     {
-        const now = performance.now();
-        const dt = now - this.lastTick;
+        this.count++;
         this.f.executeCommand({
-            tick:{
-                dt:dt
+            fixedUpdate:{
+                time:this.fixedUpdateTime,
+                tickRate:this.tickRateMS / 1000,
+                deltaTime:this.tickRateMS / 1000,
+                count: this.count
+            }
+        });
+
+        this.fixedUpdateTime += this.tickRateMS / 1000;
+    }
+
+    private lastFrame = performance.now() / 1000;
+    private lastDiff = 0;
+    private frames = 0;
+    private onAnimationFrame()
+    {
+        this.frames++;
+        const now = performance.now() / 1000;
+        window.requestAnimationFrame((c)=>this.onAnimationFrame());
+        const deltaTime = now - this.lastFrame;
+        this.lastFrame = now;
+        const elapsed = (this.lastFrame - this.fixedUpdateTime);
+        const elapsedFactor = elapsed / (this.tickRateMS / 1000);
+
+        this.f.executeCommand({
+            update:{
+                deltaTime:deltaTime,
+                elapsedSinceFixedUpdate:elapsed,
+                elapsedSinceFixedUpdateFactor:elapsedFactor,
+                time:now,
+                count:this.frames
             }
         })
 
-        this.lastTick = performance.now();
-    }
 
-    private lastFrame = performance.now();
-
-    private lastDiff = 0;
-    private onAnimationFrame()
-    {
-        this.lastFrame = performance.now();
-        window.requestAnimationFrame(()=>this.onAnimationFrame());
-        const diff = (this.lastFrame - this.lastTick) / this.tickrate;
-        
         this.f.entityManager.forEach(e=>{
             const transform = e.transform.get();
             if (this.meshes[e.id] == null)
@@ -89,9 +109,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             if (this.prevPosition[e.id] == null)
                 this.prevPosition[e.id] = {...transform};
 
-            this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * diff;
-            this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * diff;
-            this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * diff;
+            this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * elapsedFactor;
+            this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * elapsedFactor;
+            this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * elapsedFactor;
 
             if (e.camera.has && e.camera.get().isActive)
             {
@@ -100,13 +120,13 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.camera.position.z = this.meshes[e.id].position.z;e.transform.get().z;
             }
 
-            if (diff < this.lastDiff)
+            if (elapsedFactor < this.lastDiff)
             {
                 //this.prevPosition[e.id].x = transform.x;
             }
         }, e=>e.transform.has);
       
-        this.lastDiff = diff;
+        this.lastDiff = elapsedFactor;
 
         this.renderer.render(this.scene, this.camera);
     }

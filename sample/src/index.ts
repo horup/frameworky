@@ -21,18 +21,19 @@ class TestSystem implements System<Entity, Command>
 
     }
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-        if (command.tick)
+        if (command.fixedUpdate)
         {
             f.entityManager.forEach(e=>{
-                e.transform.get().x+=0.1;
+                e.transform.get().x-=0.1;
             }, e=>e.id == 1 && e.transform.has);
         }
+
+        console.log(command);
     }
    
 }
 
-const f = new Frameworky<Entity>(Entity);
-f.initialize(()=>{
+new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
 
@@ -43,6 +44,9 @@ f.initialize(()=>{
     camera.camera.attach({
         isActive:true
     })
+    camera.playerController.attach({
+
+    });
     for (let i = 0; i < 100; i++)
     {
         const e = f.entityManager.new();
@@ -55,4 +59,4 @@ f.initialize(()=>{
             amount:100
         })
     }
-})
+});

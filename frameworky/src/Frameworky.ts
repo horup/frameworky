@@ -3,6 +3,7 @@ import { THREESystem } from './systems/THREESystem';
 import { BaseEntity } from './BaseEntity';
 import { EntityManager } from './EntityManager';
 import {BaseCommand} from './BaseCommand';
+import { PlayerSystem } from './systems/PlayerSystem';
 
 export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
@@ -10,16 +11,27 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     private commandQueue:any[] = [];
     readonly entityManager:EntityManager<Entity>;
 
-    constructor(newEntity:new (id:number)=>Entity)
+    keys:{[key:string]:boolean} = {};
+
+    constructor(newEntity:new (id:number)=>Entity, onReady:(f:Frameworky<Entity, Command>)=>void)
     {
         this.entityManager = new EntityManager<Entity>(newEntity);
-    }
 
-    /**Initialized Frameworky, such that it is ready to run a game */
-    initialize(onInitialized:()=>any):this
-    {
-        onInitialized();
-        return this;
+        document.addEventListener("keydown", (e)=>{
+            this.keys[e.key] = true;
+            this.executeCommand({
+                keyDown:{key:e.key}
+            } as Command);
+        });
+
+        document.addEventListener("keyup", (e)=>{
+            this.keys[e.key] = false;
+            this.executeCommand({
+                keyUp:{key:e.key}
+            } as Command);
+        })
+
+        onReady(this);
     }
 
     addSystem(system:System<Entity, Command>)
@@ -31,26 +43,15 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     addDefaultSystems():this
     {
         this.addSystem(new THREESystem());
+        this.addSystem(new PlayerSystem());
+
         return this;
     }
-
 
     now()
     {
         return performance.now() / 1000;
     }
- /*  
-    onKeyDown(f:(e:KeyboardEvent)=>any):this
-    {
-        document.addEventListener("keydown", f);
-        return this;
-    }
-
-    onKeyUp(f:(e:KeyboardEvent)=>any):this
-    {
-        document.addEventListener("keyup", f);
-        return this;
-    }*/
 
     /*
     private update(dt:number)

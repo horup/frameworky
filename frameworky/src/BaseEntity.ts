@@ -1,4 +1,5 @@
 import { Component, Transform, Body, Camera } from ".";
+import { PlayerController } from "./components";
 
 export class BaseEntity
 {
@@ -11,4 +12,5 @@ export class BaseEntity
     readonly transform = new Component<Transform>(this);
     readonly body = new Component<Body>(this);
     readonly camera = new Component<Camera>(this);
+    readonly playerController = new Component<PlayerController>(this);
 }
