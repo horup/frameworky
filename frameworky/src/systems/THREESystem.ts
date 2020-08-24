@@ -103,9 +103,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 {
                     this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
                     this.scene.add(this.meshes[e.id]);
-                
-                    //this.meshes[id].position.x = body.px + (body.x - body.px) * diff;
-                    //this.meshes[id].position.y = body.py + (body.y - body.py) * diff;
                 }
 
                 if (this.prevPosition[e.id] == null)
@@ -117,9 +114,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             }
             if (e.camera.has && e.camera.get().isActive)
             {
-                this.camera.position.x = e.transform.get().x;//this.meshes[e.id].position.x;//e.transform.get().x;
-                this.camera.position.y = e.transform.get().y;//this.meshes[e.id].position.y;//e.transform.get().y;
-                this.camera.position.z = e.transform.get().z;//this.meshes[e.id].position.z;e.transform.get().z;
+                this.camera.position.x = e.transform.get().x;
+                this.camera.position.y = e.transform.get().y;
+                this.camera.position.z = e.transform.get().z;
             }
 
             if (elapsedFactor < this.lastDiff)
