@@ -10,6 +10,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;
+    private planeZ = new THREE.Plane(new THREE.Vector3(0,0, 1), 0);
     private meshes:{[id:number]:THREE.Mesh} = {};
     private f:Frameworky<BaseEntity, BaseCommand>;
     private tickRateMS = 500;
@@ -56,8 +57,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             this.screenMouse.y = -(m.y / window.innerHeight * 2 - 1);
             console.log(this.screenMouse);
             this.raycaster.setFromCamera(this.screenMouse, this.camera);
-            const t = this.raycaster.intersectObjects(this.scene.children);
-            console.log(t[0]);
+            let intersects = new THREE.Vector3();
+            this.raycaster.ray.intersectPlane(this.planeZ, intersects);
+            console.log(intersects);
         }
        /* if (command.helloFromBodySystem)
         {
