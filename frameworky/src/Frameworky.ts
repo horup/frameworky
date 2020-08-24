@@ -5,6 +5,7 @@ import { EntityManager } from './EntityManager';
 import {BaseCommand} from './BaseCommand';
 import { PlayerSystem } from './systems/PlayerSystem';
 import { BodySystem } from './systems';
+import { Mouse } from './commands';
 
 export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
@@ -13,6 +14,7 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     readonly entityManager:EntityManager<Entity>;
 
     keys:{[key:string]:boolean} = {};
+    mouse:Mouse = {x:0, y:0, buttons:0};
 
     constructor(newEntity:new (id:number)=>Entity, onReady:(f:Frameworky<Entity, Command>)=>void)
     {
@@ -31,6 +33,48 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
                 keyUp:{key:e.key}
             } as Command);
         })
+
+        document.addEventListener("mousedown", (e)=>{
+            e.preventDefault();
+            this.mouse.buttons = e.buttons;
+            this.mouse.x = e.x;
+            this.mouse.y = e.y;
+            e.buttons
+            this.executeCommand({
+                mouseDown:{
+                    button:e.button, buttons:e.buttons,
+                    x:e.x, y:e.y
+                }
+            } as Command);
+        });
+
+        document.addEventListener("mouseup", (e)=>{
+            e.preventDefault();
+            this.mouse.buttons = e.buttons;
+            this.mouse.x = e.x;
+            this.mouse.y = e.y;
+            this.executeCommand({
+                mouseUp:{
+                    button:e.button, buttons:e.buttons,
+                    x:e.x, y:e.y
+                }
+            } as Command);
+        });
+
+        document.addEventListener("mousemove", (e)=>{
+            e.preventDefault();
+            this.mouse.buttons = e.buttons;
+            this.mouse.x = e.x;
+            this.mouse.y = e.y;
+            this.executeCommand({
+                mouseMove:{
+                    buttons:e.buttons,
+                    x:e.x, y:e.y
+                }
+            } as Command);
+        });
+
+        document.oncontextmenu = ()=>false;
 
         onReady(this);
     }

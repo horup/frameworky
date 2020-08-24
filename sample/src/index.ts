@@ -21,12 +21,12 @@ class TestSystem implements System<Entity, Command>
 
     }
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-        if (command.fixedUpdate)
+      /*  if (command.fixedUpdate)
         {
             f.entityManager.forEach(e=>{
                 e.transform.get().x-=0.1;
             }, e=>e.id == 1 && e.transform.has);
-        }
+        }*/
     }
    
 }
