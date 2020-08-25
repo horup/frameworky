@@ -8,7 +8,3 @@ export * from './BaseCommand';
 export * from './BaseEntity';
 export * from './Component';
 export * from './EntityManager';
-
-export class Hello{
-    id:number = 5;
-}

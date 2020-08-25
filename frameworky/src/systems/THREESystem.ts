@@ -154,12 +154,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             }
         }) 
   
-        console.log(elapsed);   
-
-        
-        //console.log(elapsedFactor);
-
-
         this.f.entityManager.forEach(e=>{
             const transform = e.transform.get();
             if (!e.camera.has)
@@ -177,18 +171,16 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 if (nextPosition[e.id] == null)
                     nextPosition[e.id] = {...transform};
 
-             /*   if (nextPosition[e.id].x != transform.x || nextPosition[e.id].y != transform.y || nextPosition[e.id].z != transform.z)
+                if (elapsedFactor < this.lastDiff)
                 {
-                    prevPosition[e.id] = {...nextPosition[e.id]};
+                    prevPosition[e.id] = nextPosition[e.id];
                     nextPosition[e.id] = {...transform};
-                }*/
-
-                this.meshes[e.id].position.x = nextPosition[e.id].x;
-                this.meshes[e.id].position.y = nextPosition[e.id].y;
-                this.meshes[e.id].position.z = nextPosition[e.id].z;
-            /*    this.meshes[e.id].position.x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
+                }
+           
+               
+                this.meshes[e.id].position.x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
                 this.meshes[e.id].position.y = prevPosition[e.id].y + (nextPosition[e.id].y - prevPosition[e.id].y) * elapsedFactor;
-                this.meshes[e.id].position.z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;*/
+                this.meshes[e.id].position.z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;
              /*   if (this.position[e.id] == null)
                     this.position[e.id] = {...transform};
 
@@ -203,10 +195,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.camera.position.z = e.transform.get().z;
             }
 
-            if (elapsedFactor < this.lastDiff)
-            {
-                //this.prevPosition[e.id].x = transform.x;
-            }
+            
         }, e=>e.transform.has);
       
         this.lastDiff = elapsedFactor;

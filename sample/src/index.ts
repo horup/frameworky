@@ -32,14 +32,21 @@ class TestSystem implements System<Entity, Command>
         // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
-            f.enqueueFunction(f=>{
+          /*  f.enqueueFunction(f=>{
                 const m = command.worldMouseDown;
                 console.log(m);
                 const first = f.entityManager.get(1);
                 const t = first.transform.get();
                 t.x = m.x;
                 t.y = m.y;
-            })
+            })*/
+
+            const m = command.worldMouseDown;
+            console.log(m);
+            const first = f.entityManager.get(1);
+            const t = first.transform.get();
+            t.x = m.x;
+            t.y = m.y;
         }
     }
    
