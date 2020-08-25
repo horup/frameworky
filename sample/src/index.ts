@@ -1,5 +1,6 @@
 import {BaseEntity, BaseCommand, Component, Frameworky, System} from 'frameworky';
 
+
 interface Health
 {
     amount:number;
@@ -30,7 +31,8 @@ class TestSystem implements System<Entity, Command>
 
         if (command.mouseDown)
         {
-            console.log(command.mouseDown);
+            const m = command.mouseDown;
+            
         }
     }
    
