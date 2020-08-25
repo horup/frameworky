@@ -15,7 +15,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private planeZ = new THREE.Plane(new THREE.Vector3(0,0, 1), 0);
     private meshes:{[id:number]:THREE.Mesh} = {};
     private f:Frameworky<BaseEntity, BaseCommand>;
-    private tickRateMS = 500;
     init(f: Frameworky<BaseEntity, BaseCommand>) 
     {
         this.f = f;
@@ -37,7 +36,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.scene = new THREE.Scene();
 
         window.requestAnimationFrame(()=>this.onAnimationFrame());
-        setInterval(()=>this.onTick(), this.tickRateMS);
     }
 
     private prevPosition:{[id:number]:Transform} = {};
@@ -126,23 +124,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     }
 
    // private lastTick = performance.now() / 1000;
-    private fixedUpdateTime = 0;
     //private tickNow = 0;
     private count = 0;
-    private onTick()
-    {
-        this.count++;
-        this.f.executeCommand({
-            fixedUpdate:{
-                time:this.fixedUpdateTime,
-                tickRate:this.tickRateMS / 1000,
-                deltaTime:this.tickRateMS / 1000,
-                count: this.count
-            }
-        });
-
-        this.fixedUpdateTime += this.tickRateMS / 1000;
-    }
+    
 
     private lastFrame = performance.now() / 1000;
     private lastDiff = 0;
@@ -154,8 +138,8 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         window.requestAnimationFrame((c)=>this.onAnimationFrame());
         const deltaTime = now - this.lastFrame;
         this.lastFrame = now;
-        const elapsed = (this.lastFrame - this.fixedUpdateTime);
-        const elapsedFactor = elapsed / (this.tickRateMS / 1000);
+        const elapsed = (this.lastFrame - this.f.ticker.time);
+        const elapsedFactor = elapsed / (this.f.ticker.rateMS / 1000);
 
         this.updateWorldMouse();
         this.f.executeCommand({

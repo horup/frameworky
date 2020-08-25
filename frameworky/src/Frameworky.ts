@@ -9,6 +9,8 @@ import { Mouse } from './commands';
 
 export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
+    readonly ticker = {count:0, time:0, rateMS:0 };
+
     private systems:System<Entity, Command>[] = [];
     private commandQueue:any[] = [];
     readonly entityManager:EntityManager<Entity>;
@@ -16,9 +18,10 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
     keys:{[key:string]:boolean} = {};
     mouse:Mouse = {x:0, y:0, buttons:0};
 
-    constructor(newEntity:new (id:number)=>Entity, onReady:(f:Frameworky<Entity, Command>)=>void)
+    constructor(newEntity:new (id:number)=>Entity, onReady:(f:Frameworky<Entity, Command>)=>void, tickRateMS:number = 50)
     {
         this.entityManager = new EntityManager<Entity>(newEntity);
+        this.ticker.rateMS = tickRateMS;
 
         document.addEventListener("keydown", (e)=>{
             this.keys[e.key] = true;
@@ -76,7 +79,30 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
 
         document.oncontextmenu = ()=>false;
 
+        setInterval(()=>this.onTick(), this.ticker.rateMS);
+
         onReady(this);
+    }
+
+    private onTick()
+    {
+        const cmds = this.commandQueue;
+        this.commandQueue = [];
+        cmds.forEach((v)=>{
+            this.executeCommand(v);
+        })
+        this.ticker.count++;
+        const ticker = this.ticker;
+        this.executeCommand({
+            fixedUpdate:{
+                time:ticker.time,
+                tickRate:ticker.rateMS / 1000,
+                deltaTime:ticker.rateMS / 1000,
+                count: ticker.count
+            }
+        } as Command);
+
+        this.ticker.time += this.ticker.rateMS / 1000;
     }
 
     addSystem(system:System<Entity, Command>)
@@ -99,23 +125,13 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
         return performance.now() / 1000;
     }
 
-    /*
-    private update(dt:number)
-    {
-        const cmds = this.commandQueue;
-        this.commandQueue = [];
-        cmds.forEach((v)=>{
-            this.executeCommand(v);
-        })
-    }*/
-
     executeCommand(command:Command):this 
     {
         this.systems.forEach(s=>s.executeCommand(this, command));
         return this;
     }
 
-    enqueueCommand<T>(command:T):this
+    enqueueCommand(command:Command):this
     {
         this.commandQueue.push(command);
         return this;

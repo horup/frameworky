@@ -21,24 +21,28 @@ class TestSystem implements System<Entity, Command>
     init(f: Frameworky<Entity, Command>) {
 
     }
-    
+
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-      /*  if (command.fixedUpdate)
+        if (command.fixedUpdate)
         {
             f.entityManager.forEach(e=>{
                 e.transform.get().x-=0.1;
             }, e=>e.id == 1 && e.transform.has);
-        }*/
+        }
 
-        if (command.worldMouseDown)
+        // enqueue a command that is executed during fixedUpdate
+     /*   if (command.worldMouseDown)
         {
+            f.enqueueCommand({
+
+            })
             const m = command.worldMouseDown;
             console.log(m);
             const first = f.entityManager.get(1);
             const t = first.transform.get();
             t.x = m.x;
             t.y = m.y;
-        }
+        }*/
     }
    
 }
@@ -69,4 +73,4 @@ new Frameworky<Entity>(Entity, (f)=>{
             amount:100
         })
     }
-});
+}, 500);
