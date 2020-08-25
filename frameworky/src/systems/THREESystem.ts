@@ -38,19 +38,22 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         window.requestAnimationFrame(()=>this.onAnimationFrame());
     }
 
-    private prevPosition:{[id:number]:Transform} = {};
+    private position:{[id:number]:Transform}[] = [{}, {}];
 
     private screenMouse = new THREE.Vector2();
     private raycaster = new THREE.Raycaster();
     executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command:BaseCommand) 
     {
-        if (command.fixedUpdate)
+       /* if (command.fixedUpdate)
         {
+            const prevPosition = this.position[0];
+            const nextPosition = this.position[1];
             f.entityManager.forEach(e=>{
-                this.prevPosition[e.id] = {...e.transform.get()};
+                prevPosition[e.id] = nextPosition[e.id];
+                nextPosition[e.id] = {...e.transform.get()};
             }, e=>e.transform.has);
         }
-        else if (command.mouseDown)
+        else*/ if (command.mouseDown)
         {
             this.worldMouse.buttons = command.mouseDown.buttons;
             this.f.executeCommand({
@@ -140,7 +143,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.lastFrame = now;
         const elapsed = (this.lastFrame - this.f.ticker.time);
         const elapsedFactor = elapsed / (this.f.ticker.rateMS / 1000);
-
         this.updateWorldMouse();
         this.f.executeCommand({
             update:{
@@ -150,7 +152,12 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 time:now,
                 count:this.frames
             }
-        })
+        }) 
+  
+        console.log(elapsed);   
+
+        
+        //console.log(elapsedFactor);
 
 
         this.f.entityManager.forEach(e=>{
@@ -163,12 +170,31 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                     this.scene.add(this.meshes[e.id]);
                 }
 
-                if (this.prevPosition[e.id] == null)
-                    this.prevPosition[e.id] = {...transform};
+                const prevPosition = this.position[0];
+                const nextPosition = this.position[1];
+                if (prevPosition[e.id] == null)
+                    prevPosition[e.id] = {...transform};
+                if (nextPosition[e.id] == null)
+                    nextPosition[e.id] = {...transform};
 
-                this.meshes[e.id].position.x = this.prevPosition[e.id].x + (e.transform.get().x - this.prevPosition[e.id].x) * elapsedFactor;
-                this.meshes[e.id].position.y = this.prevPosition[e.id].y + (e.transform.get().y - this.prevPosition[e.id].y) * elapsedFactor;
-                this.meshes[e.id].position.z = this.prevPosition[e.id].z + (e.transform.get().z - this.prevPosition[e.id].z) * elapsedFactor;
+             /*   if (nextPosition[e.id].x != transform.x || nextPosition[e.id].y != transform.y || nextPosition[e.id].z != transform.z)
+                {
+                    prevPosition[e.id] = {...nextPosition[e.id]};
+                    nextPosition[e.id] = {...transform};
+                }*/
+
+                this.meshes[e.id].position.x = nextPosition[e.id].x;
+                this.meshes[e.id].position.y = nextPosition[e.id].y;
+                this.meshes[e.id].position.z = nextPosition[e.id].z;
+            /*    this.meshes[e.id].position.x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
+                this.meshes[e.id].position.y = prevPosition[e.id].y + (nextPosition[e.id].y - prevPosition[e.id].y) * elapsedFactor;
+                this.meshes[e.id].position.z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;*/
+             /*   if (this.position[e.id] == null)
+                    this.position[e.id] = {...transform};
+
+                this.meshes[e.id].position.x = this.position[e.id].x + (e.transform.get().x - this.position[e.id].x) * elapsedFactor;
+                this.meshes[e.id].position.y = this.position[e.id].y + (e.transform.get().y - this.position[e.id].y) * elapsedFactor;
+                this.meshes[e.id].position.z = this.position[e.id].z + (e.transform.get().z - this.position[e.id].z) * elapsedFactor;*/
             }
             if (e.camera.has && e.camera.get().isActive)
             {

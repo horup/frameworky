@@ -1,6 +1,5 @@
 import {BaseEntity, BaseCommand, Component, Frameworky, System} from 'frameworky';
-
-
+       
 interface Health
 {
     amount:number;
@@ -23,26 +22,25 @@ class TestSystem implements System<Entity, Command>
     }
 
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-        if (command.fixedUpdate)
+      /*  if (command.fixedUpdate)
         {
             f.entityManager.forEach(e=>{
                 e.transform.get().x-=0.1;
             }, e=>e.id == 1 && e.transform.has);
-        }
+        }*/
 
         // enqueue a command that is executed during fixedUpdate
-     /*   if (command.worldMouseDown)
+        if (command.worldMouseDown)
         {
-            f.enqueueCommand({
-
+            f.enqueueFunction(f=>{
+                const m = command.worldMouseDown;
+                console.log(m);
+                const first = f.entityManager.get(1);
+                const t = first.transform.get();
+                t.x = m.x;
+                t.y = m.y;
             })
-            const m = command.worldMouseDown;
-            console.log(m);
-            const first = f.entityManager.get(1);
-            const t = first.transform.get();
-            t.x = m.x;
-            t.y = m.y;
-        }*/
+        }
     }
    
 }

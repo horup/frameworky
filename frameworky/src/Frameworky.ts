@@ -13,6 +13,7 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
 
     private systems:System<Entity, Command>[] = [];
     private commandQueue:any[] = [];
+    private functionQueue:((f:this)=>void)[] = [];
     readonly entityManager:EntityManager<Entity>;
 
     keys:{[key:string]:boolean} = {};
@@ -80,29 +81,29 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
         document.oncontextmenu = ()=>false;
 
         setInterval(()=>this.onTick(), this.ticker.rateMS);
-
-        onReady(this);
+        onReady(this);  
     }
 
     private onTick()
     {
-        const cmds = this.commandQueue;
-        this.commandQueue = [];
-        cmds.forEach((v)=>{
-            this.executeCommand(v);
-        })
+        const now = this.now();
+        const deltaTime = now - this.ticker.time;
+        this.ticker.time = now;
+        const fs = this.functionQueue;
+        this.functionQueue = [];
+        fs.forEach(func=>{
+            func(this);
+        });
         this.ticker.count++;
         const ticker = this.ticker;
         this.executeCommand({
             fixedUpdate:{
                 time:ticker.time,
                 tickRate:ticker.rateMS / 1000,
-                deltaTime:ticker.rateMS / 1000,
-                count: ticker.count
+                deltaTime:deltaTime,
+                count: ticker.count 
             }
         } as Command);
-
-        this.ticker.time += this.ticker.rateMS / 1000;
     }
 
     addSystem(system:System<Entity, Command>)
@@ -130,10 +131,15 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
         this.systems.forEach(s=>s.executeCommand(this, command));
         return this;
     }
-
+/*
     enqueueCommand(command:Command):this
     {
         this.commandQueue.push(command);
         return this;
+    }*/
+
+    enqueueFunction(f:(f:this)=>void)
+    {
+        this.functionQueue.push(f);
     }
 }
