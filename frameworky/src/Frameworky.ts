@@ -114,9 +114,9 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
 
     addDefaultSystems():this
     {
-        this.addSystem(new THREESystem());
         this.addSystem(new PlayerSystem());
         this.addSystem(new BodySystem());
+        this.addSystem(new THREESystem());
 
         return this;
     }

@@ -132,7 +132,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     
 
     private lastFrame = performance.now() / 1000;
-    private lastDiff = 0;
+    private lastElapsedFactor = 0;
     private frames = 0;
     private onAnimationFrame()
     {
@@ -171,11 +171,30 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 if (nextPosition[e.id] == null)
                     nextPosition[e.id] = {...transform};
 
-                if (elapsedFactor < this.lastDiff)
+                if ((transform.x != nextPosition[e.id].x ||
+                     transform.y != nextPosition[e.id].y ||
+                     transform.z != nextPosition[e.id].z)|| 
+                     elapsedFactor < this.lastElapsedFactor)
                 {
-                    prevPosition[e.id] = nextPosition[e.id];
-                    nextPosition[e.id] = {...transform};
+                    prevPosition[e.id].x = this.meshes[e.id].position.x;
+                    prevPosition[e.id].y = this.meshes[e.id].position.y;
+                    prevPosition[e.id].z = this.meshes[e.id].position.z;
+
+                    nextPosition[e.id].x = transform.x;
+                    nextPosition[e.id].y = transform.y;
+                    nextPosition[e.id].z = transform.z;
                 }
+
+              /*  if (elapsedFactor < this.lastElapsedFactor)
+                {
+                    prevPosition[e.id].x = nextPosition[e.id].x;
+                    prevPosition[e.id].y = nextPosition[e.id].y;
+                    prevPosition[e.id].z = nextPosition[e.id].z;
+
+                    nextPosition[e.id].x = transform.x;
+                    nextPosition[e.id].y = transform.y;
+                    nextPosition[e.id].z = transform.z;
+                }*/
            
                
                 this.meshes[e.id].position.x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
@@ -198,7 +217,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             
         }, e=>e.transform.has);
       
-        this.lastDiff = elapsedFactor;
+        this.lastElapsedFactor = elapsedFactor;
 
         this.renderer.render(this.scene, this.camera);
     }
