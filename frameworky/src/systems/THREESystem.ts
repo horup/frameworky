@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import { BaseEntity } from "../BaseEntity";
 import { Transform } from "../components";
 import { BaseCommand } from '../BaseCommand';
+import { WorldMouse } from "../commands";
+import { Vector3 } from "three";
 
 export class THREESystem implements System<BaseEntity, BaseCommand>
 {
@@ -50,7 +52,33 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.prevPosition[e.id] = {...e.transform.get()};
             }, e=>e.transform.has);
         }
-        else if (command.mouseMove)
+        else if (command.mouseDown)
+        {
+            this.worldMouse.buttons = command.mouseDown.buttons;
+            this.f.executeCommand({
+                worldMouseDown:{
+                    button:command.mouseDown.button,
+                    buttons:this.worldMouse.buttons,
+                    x:this.worldMouse.x,
+                    y:this.worldMouse.y,
+                    z:this.worldMouse.z
+                }
+            })
+        }
+        else if (command.mouseUp)
+        {
+            this.worldMouse.buttons = command.mouseUp.buttons;
+            this.f.executeCommand({
+                worldMouseUp:{
+                    button:command.mouseUp.button,
+                    buttons:this.worldMouse.buttons,
+                    x:this.worldMouse.x,
+                    y:this.worldMouse.y,
+                    z:this.worldMouse.z
+                }
+            })
+        }
+     /*   else if (command.mouseMove)
         {
             const m = command.mouseMove;
             this.screenMouse.x = m.x / window.innerWidth * 2 - 1;
@@ -60,11 +88,41 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             let intersects = new THREE.Vector3();
             this.raycaster.ray.intersectPlane(this.planeZ, intersects);
             console.log(intersects);
-        }
+        }*/
        /* if (command.helloFromBodySystem)
         {
             this.bodies = command.helloFromBodySystem.bodies;
         }*/
+    }
+
+    get width()
+    {
+        return window.innerWidth;
+    }
+
+    get height()
+    {
+        return window.innerHeight;
+    }
+
+    private worldMouse:WorldMouse = {x:0, y:0, z:0, buttons:0};
+    private intersects = new THREE.Vector3();
+    private updateWorldMouse()
+    {
+        this.screenMouse.x = this.f.mouse.x / this.width * 2 - 1;
+        this.screenMouse.y = this.f.mouse.y / this.height * 2 - 1;
+        this.raycaster.setFromCamera(this.screenMouse, this.camera);
+        this.raycaster.ray.intersectPlane(this.planeZ, this.intersects);
+        const v = this.intersects;
+        if (this.worldMouse.x != v.x || this.worldMouse.y != v.y || this.worldMouse.z != v.z)
+        {
+            this.worldMouse.x = v.x;
+            this.worldMouse.y = v.y;
+            this.worldMouse.z = v.z;
+            this.f.executeCommand({
+                worldMouseMove:this.worldMouse
+            })
+        }
     }
 
    // private lastTick = performance.now() / 1000;
@@ -99,6 +157,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         const elapsed = (this.lastFrame - this.fixedUpdateTime);
         const elapsedFactor = elapsed / (this.tickRateMS / 1000);
 
+        this.updateWorldMouse();
         this.f.executeCommand({
             update:{
                 deltaTime:deltaTime,

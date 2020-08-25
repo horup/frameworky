@@ -19,4 +19,3 @@ export interface MouseMove extends Mouse
 {
    
 }
-
