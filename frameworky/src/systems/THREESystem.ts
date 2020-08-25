@@ -110,7 +110,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private updateWorldMouse()
     {
         this.screenMouse.x = this.f.mouse.x / this.width * 2 - 1;
-        this.screenMouse.y = this.f.mouse.y / this.height * 2 - 1;
+        this.screenMouse.y = -(this.f.mouse.y / this.height * 2 - 1);
         this.raycaster.setFromCamera(this.screenMouse, this.camera);
         this.raycaster.ray.intersectPlane(this.planeZ, this.intersects);
         const v = this.intersects;

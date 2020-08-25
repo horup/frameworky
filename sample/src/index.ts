@@ -21,6 +21,7 @@ class TestSystem implements System<Entity, Command>
     init(f: Frameworky<Entity, Command>) {
 
     }
+    
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
       /*  if (command.fixedUpdate)
         {
@@ -29,10 +30,14 @@ class TestSystem implements System<Entity, Command>
             }, e=>e.id == 1 && e.transform.has);
         }*/
 
-        if (command.mouseDown)
+        if (command.worldMouseDown)
         {
-            const m = command.mouseDown;
-            
+            const m = command.worldMouseDown;
+            console.log(m);
+            const first = f.entityManager.get(1);
+            const t = first.transform.get();
+            t.x = m.x;
+            t.y = m.y;
         }
     }
    

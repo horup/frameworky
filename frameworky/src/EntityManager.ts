@@ -39,6 +39,11 @@ export class EntityManager<E extends BaseEntity = BaseEntity>
             this.entities.delete(id);
     }
 
+    get(id:number):E
+    {
+        return this.entities.get(id);
+    }
+
     get size()
     {
         return this.entities.size;
