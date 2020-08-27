@@ -11,11 +11,30 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
     world = new CANNON.World();
     bodies = new Map<number, CANNON.Body>();
     init(f: Frameworky<BaseEntity>) {
-        this.world.gravity.set(0,0, -9.82);
+        //this.world.gravity.set(0,0, -9.82);
     }
 
     executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
     {
+        if (command.body)
+        {
+            if (command.body.applyForce)
+            {
+                const applyForce = command.body.applyForce;
+                const e = f.entityManager.get(applyForce.id);
+                if (e && e.body.has)
+                {
+                    const b = this.bodies.get(e.id);
+                    if (b)
+                    {
+                        const v = applyForce.v;
+                        const p = new CANNON.Vec3(0,0,0);
+                        console.log(p);
+                        b.applyForce(new CANNON.Vec3(v.x, v.y, v.z), CANNON.Vec3.ZERO);
+                    }
+                }
+            }
+        }
         if (command.fixedUpdate)
         {
             // ensure bodies are syncronized to world
@@ -33,9 +52,11 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 }
                 else
                 {
-                    this.bodies.get(e.id).position.x = m.x;
-                    this.bodies.get(e.id).position.y = m.y;
-                    this.bodies.get(e.id).position.z = m.z;
+                    const b =  this.bodies.get(e.id);
+                    //b.applyForce(new CANNON.Vec3(-100, 0,0),new CANNON.Vec3(0, 0,0));
+                    b.position.x = m.x;
+                    b.position.y = m.y;
+                    b.position.z = m.z;
                 }
             }, e=>e.body.has && e.transform.has);
             

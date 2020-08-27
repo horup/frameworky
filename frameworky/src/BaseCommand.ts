@@ -1,4 +1,4 @@
-import { FixedUpdate, Update, KeyDown, KeyUp, MouseMove, MouseDown, MouseUp, WorldMouseMove, WorldMouseUp, WorldMouseDown } from "./commands";
+import { FixedUpdate, Update, KeyDown, KeyUp, MouseMove, MouseDown, MouseUp, WorldMouseMove, WorldMouseUp, WorldMouseDown, BodyCommand } from "./commands";
 export interface BaseCommand
 {
     fixedUpdate?:FixedUpdate
@@ -14,4 +14,5 @@ export interface BaseCommand
     worldMouseMove?:WorldMouseMove;
     worldMouseUp?:WorldMouseUp;
     worldMouseDown?:WorldMouseDown;
+    body?:BodyCommand;
 }

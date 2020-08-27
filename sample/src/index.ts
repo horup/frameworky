@@ -32,14 +32,22 @@ class TestSystem implements System<Entity, Command>
         // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
-            f.enqueueFunction(f=>{
+           /* f.executeCommand({
+                body:{
+                    applyForce:{
+                        v:{x:-1, y:0, z:0},
+                        id:1 
+                    }
+                }
+            })*/
+        /*    f.enqueueFunction(f=>{
                 const m = command.worldMouseDown;
                 console.log(m);
                 const first = f.entityManager.get(1);
                 const t = first.transform.get();
                 t.x = m.x;
                 t.y = m.y;
-            })
+            })*/
         }
     }
    
@@ -49,7 +57,7 @@ new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
 
-    const camera = f.entityManager.new();
+   /* const camera = f.entityManager.new();
     camera.transform.attach({
         x:0, y:0, z:20
     });
@@ -58,12 +66,27 @@ new Frameworky<Entity>(Entity, (f)=>{
     })
     camera.playerController.attach({
 
+    });*/
+
+    const camera = f.entityManager.new();
+    camera.transform.attach({
+        x:0, y:0, z:20
     });
+    camera.camera.attach({
+        isActive:true
+    })
+
+    const player = f.entityManager.new();
+    player.transform.attach({x:0, y:0, z:0});
+    player.body.attach({});
+    player.playerController.attach({
+        disableInterpolation:true
+    })
     for (let i = 0; i < 100; i++)
     {
         const e = f.entityManager.new();
         e.transform.attach({
-            x:i % 16,
+            x:1+ i % 16,
             y:-Math.floor(i / 16),
             z:0
         });
