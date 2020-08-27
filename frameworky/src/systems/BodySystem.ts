@@ -29,7 +29,6 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     {
                         const v = applyForce.v;
                         const p = new CANNON.Vec3(0,0,0);
-                        console.log(p);
                         b.applyForce(new CANNON.Vec3(v.x, v.y, v.z), CANNON.Vec3.ZERO);
                     }
                 }
@@ -46,7 +45,13 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                         mass: 5,
                         position: new CANNON.Vec3(m.x, m.y, m.z),
                         shape: new CANNON.Sphere(0.5),
-                        linearDamping:1
+                        linearDamping:0.1
+                    })
+
+                    circle.collisionResponse = true;
+
+                    circle.addEventListener("collide", e=>{
+                       // console.log(e);
                     })
                     this.world.addBody(circle);
                     this.bodies.set(e.id, circle);
