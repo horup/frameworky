@@ -45,7 +45,8 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     const circle = new CANNON.Body({
                         mass: 5,
                         position: new CANNON.Vec3(m.x, m.y, m.z),
-                        shape: new CANNON.Sphere(0.5)
+                        shape: new CANNON.Sphere(0.5),
+                        linearDamping:1
                     })
                     this.world.addBody(circle);
                     this.bodies.set(e.id, circle);
