@@ -18,7 +18,8 @@ export class PlayerSystem implements System
                 if (e.body.has)
                 {
                     const force = {x:0, y:0, z:0};
-                    const multiply = p.speed != null ? p.speed : 50;
+                    let multiply = p.speed != null ? p.speed : 1000;
+                    multiply *= command.update.deltaTime;
                     force.y += k.w ? 1 : k.s ? -1 : 0;
                     force.x += k.a ? -1 : k.d ? 1 : 0;
                     const l = Math.sqrt(force.x*force.x + force.y*force.y);

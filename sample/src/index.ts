@@ -84,7 +84,7 @@ new Frameworky<Entity>(Entity, (f)=>{
         shape:BodyShape.Sphere
     });
     player.playerController.attach({
-        disableInterpolation:true
+        disableInterpolation:true,
     })
    /* for (let i = 0; i < 100; i++)
     {
