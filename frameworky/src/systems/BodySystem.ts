@@ -4,6 +4,7 @@ import { BaseEntity } from "../BaseEntity";
 import { BaseCommand } from "../BaseCommand";
 //import {Engine, Bodies, Body, World} from 'matter-js';
 import * as CANNON from 'cannon';
+import { BodyShape } from "..";
 
 
 export class BodySystem implements System<BaseEntity, BaseCommand>
@@ -27,7 +28,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     const b = this.bodies.get(e.id);
                     if (b)
                     {
-                        const v = applyForce.v;
+                        const v = applyForce.f;
                         const p = new CANNON.Vec3(0,0,0);
                         b.applyForce(new CANNON.Vec3(v.x, v.y, v.z), CANNON.Vec3.ZERO);
                     }
@@ -39,13 +40,14 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             // ensure bodies are syncronized to world
             f.entityManager.forEach(e=>{
                 const m = e.transform.get();
+                const b = e.body.get();
                 if (this.bodies.has(e.id) == false)
                 {
                     const circle = new CANNON.Body({
-                        mass: 5,
+                        mass: b.mass,
                         position: new CANNON.Vec3(m.x, m.y, m.z),
-                        shape: new CANNON.Sphere(0.5),
-                        linearDamping:0.1
+                        shape: b.shape == BodyShape.Sphere ? new CANNON.Sphere(0.5) : undefined,
+                        linearDamping:b.linearDamping
                     })
 
                     circle.collisionResponse = true;

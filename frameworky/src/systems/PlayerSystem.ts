@@ -14,18 +14,26 @@ export class PlayerSystem implements System
             f.entityManager.forEach(e=>{
                 const t = e.transform.get();
                 const k = f.keys;
+                const p = e.playerController.get();
                 if (e.body.has)
                 {
                     const force = {x:0, y:0, z:0};
-                    const multiply = 10;
-                    force.y += k.w ? multiply : k.s ? -multiply : 0;
-                    force.x += k.a ? -multiply : k.d ? multiply : 0;
-                    // if have a body, use physics
+                    const multiply = p.speed != null ? p.speed : 50;
+                    force.y += k.w ? 1 : k.s ? -1 : 0;
+                    force.x += k.a ? -1 : k.d ? 1 : 0;
+                    const l = Math.sqrt(force.x*force.x + force.y*force.y);
+                    if (l>0)
+                    {
+                        force.x /= l;
+                        force.y /= l;
+                        force.x *= multiply;
+                        force.y *= multiply;
+                    }
                     f.executeCommand({
                         body:{
                             applyForce:{
                                 id:e.id,
-                                v:force
+                                f:force
                             }
                         }
                     })

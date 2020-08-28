@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, BodyShape} from 'frameworky';
        
 interface Health
 {
@@ -78,11 +78,15 @@ new Frameworky<Entity>(Entity, (f)=>{
 
     const player = f.entityManager.new();
     player.transform.attach({x:0, y:0, z:0});
-    player.body.attach({});
+    player.body.attach({
+        linearDamping:0.99,
+        mass:5,
+        shape:BodyShape.Sphere
+    });
     player.playerController.attach({
         disableInterpolation:true
     })
-    for (let i = 0; i < 100; i++)
+   /* for (let i = 0; i < 100; i++)
     {
         const e = f.entityManager.new();
         e.transform.attach({
@@ -95,5 +99,5 @@ new Frameworky<Entity>(Entity, (f)=>{
         })
 
         e.body.attach({});
-    }
+    }*/
 }, 50);
