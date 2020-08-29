@@ -46,6 +46,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     const circle = new CANNON.Body({
                         mass: b.mass,
                         position: new CANNON.Vec3(m.x, m.y, m.z),
+                        velocity: new CANNON.Vec3(b.velocity.x, b.velocity.y, b.velocity.z),
                         shape: b.shape == BodyShape.Sphere ? new CANNON.Sphere(0.5) : undefined,
                         linearDamping:b.linearDamping
                     })
@@ -60,22 +61,26 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 }
                 else
                 {
-                    const b =  this.bodies.get(e.id);
+                    const body =  this.bodies.get(e.id);
                     //b.applyForce(new CANNON.Vec3(-100, 0,0),new CANNON.Vec3(0, 0,0));
-                    b.position.x = m.x;
-                    b.position.y = m.y;
-                    b.position.z = m.z;
+                    body.position.set(m.x, m.y, m.z);
+                    body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
                 }
             }, e=>e.body.has && e.transform.has);
             
             this.world.step(command.fixedUpdate.tickRate);
 
-            // ensure bodies a syncronized back to transform
-            this.bodies.forEach((b,id)=>{
+            // ensure bodies a syncronized back to transform and body component
+            this.bodies.forEach((body,id)=>{
                 const m = f.entityManager.get(id).transform.get();
-                m.x = b.position.x;
-                m.y = b.position.y;
-                m.z = b.position.z;
+                const b = f.entityManager.get(id).body.get();
+                m.x = body.position.x;
+                m.y = body.position.y;
+                m.z = body.position.z;
+                b.velocity.x = body.velocity.x;
+                b.velocity.y = body.velocity.y;
+                b.velocity.z = body.velocity.z;
+                
             })
         }
        /* if (command.deleteEntity)

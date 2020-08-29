@@ -17,13 +17,21 @@ export class PlayerSystem implements System
                 const p = e.playerController.get();
                 if (e.body.has)
                 {
-                    const force = {x:0, y:0, z:0};
-                    let multiply = p.speed != null ? p.speed : 1000;
-                    multiply *= command.update.deltaTime;
-                    force.y += k.w ? 1 : k.s ? -1 : 0;
-                    force.x += k.a ? -1 : k.d ? 1 : 0;
-                    const l = Math.sqrt(force.x*force.x + force.y*force.y);
-                    if (l>0)
+                    const body = e.body.get();
+                    const velocity = {x:0, y:0, z:0};
+                    //let multiply = p.speed != null ? p.speed : 1000;
+                    //multiply *= command.update.deltaTime;
+                    velocity.y += k.w ? 1 : k.s ? -1 : 0;
+                    velocity.x += k.a ? -1 : k.d ? 1 : 0;
+                    const l = Math.sqrt(velocity.x*velocity.x + velocity.y*velocity.y);
+                    if (l > 0)
+                    {
+                        velocity.x /= l;
+                        velocity.y /= l;
+                    }
+                    body.velocity.x = velocity.x * p.speed;
+                    body.velocity.y = velocity.y * p.speed;
+                 /*   if (l>0)
                     {
                         force.x /= l;
                         force.y /= l;
@@ -37,7 +45,7 @@ export class PlayerSystem implements System
                                 f:force
                             }
                         }
-                    })
+                    })*/
                 }
                 else
                 {

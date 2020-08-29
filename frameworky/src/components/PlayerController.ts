@@ -1,5 +1,12 @@
-export interface PlayerController
+export class PlayerController
 {
-    disableInterpolation?:boolean;
-    speed?:number;
+    constructor(props:Partial<PlayerController> = null)
+    {
+        if (props)
+            for (let k in props)
+                this[k] = props[k];
+    }
+
+    disableInterpolation:boolean = false;
+    speed:number = 10;
 }
