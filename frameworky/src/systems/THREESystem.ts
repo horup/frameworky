@@ -156,7 +156,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
   
         this.f.entityManager.forEach(e=>{
             const transform = e.transform.get();
-            const interpolate = !e.playerController.has || e.playerController.get().disableInterpolation;
+            const interpolate = !e.playerController.has || !e.playerController.get().disableInterpolation;
             if (this.meshes[e.id] == null)
             {
                 this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());

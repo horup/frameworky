@@ -94,4 +94,4 @@ new Frameworky<Entity>(Entity, (f)=>{
 
         e.body.attach(new Body());
     }
-}, 500);
+}, 50);
