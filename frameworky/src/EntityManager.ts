@@ -21,6 +21,20 @@ export class EntityManager<E extends BaseEntity = BaseEntity>
         })
     }
 
+    filter(pred:(e:E)=>boolean):E[]
+    {
+        const arr:E[] = [];
+        this.forEach(e=>{
+            arr.push(e);
+        }, pred)
+        return arr;
+    }
+
+    first(pred:(e:E)=>boolean):E
+    {
+        return this.filter(pred)[0];
+    }
+
     new():E
     {
         const e = new this.newEntity(this.nextId++);//new Entity(this.nextId++);

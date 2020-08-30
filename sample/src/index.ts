@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3} from 'frameworky';
        
 interface Health
 {
@@ -32,6 +32,34 @@ class TestSystem implements System<Entity, Command>
         // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
+            const cmd = command.worldMouseDown;
+            const player = f.entityManager.first(e=>e.playerController.has);
+            const t = player.transform.get();
+            let playerPosition = vec3.fromValues(t.x, t.y, t.z);
+            let worldPosition = vec3.fromValues(cmd.x, cmd.y, cmd.z);
+            let v = vec3.create();
+            vec3.sub(v, worldPosition, playerPosition);
+            vec3.normalize(v, v);
+            
+            const ball = f.entityManager.new();
+            ball.transform.attach({
+                x:playerPosition[0] + v[0],
+                y:playerPosition[1] + v[1],
+                z:playerPosition[2] + v[2]
+            });
+
+            ball.body.attach(new Body({
+
+            }));
+
+            vec3.scale(v, v, 100);
+
+            const v2 = ball.body.get().velocity;
+            v2.x = v[0];
+            v2.y = v[1];
+            v2.z = v[2];
+
+            
            /* f.executeCommand({
                 body:{
                     applyForce:{
@@ -57,17 +85,6 @@ new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
 
-   /* const camera = f.entityManager.new();
-    camera.transform.attach({
-        x:0, y:0, z:20
-    });
-    camera.camera.attach({
-        isActive:true
-    })
-    camera.playerController.attach({
-
-    });*/
-
     const camera = f.entityManager.new();
     camera.transform.attach({
         x:0, y:0, z:20
@@ -77,15 +94,16 @@ new Frameworky<Entity>(Entity, (f)=>{
     })
 
     const player = f.entityManager.new();
-    player.transform.attach({x:0, y:0, z:0});
+    player.transform.attach({x:-10, y:0, z:0});
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
-    for (let i = 0; i < 100; i++)
+    const spread = 10;
+    for (let i = 0; i < 10; i++)
     {
         const e = f.entityManager.new();
         e.transform.attach({
-            x:1+ i % 16,
-            y:-Math.floor(i / 16),
+            x:Math.random() * spread - spread/2 + 5,
+            y:Math.random() * spread - spread/2,
             z:0
         });
         e.health.attach({

@@ -8,3 +8,4 @@ export * from './BaseCommand';
 export * from './BaseEntity';
 export * from './Component';
 export * from './EntityManager';
+export * from 'gl-matrix';
