@@ -29,6 +29,14 @@ class TestSystem implements System<Entity, Command>
             }, e=>e.id == 1 && e.transform.has);
         }*/
 
+        if (command.bodyCollision)
+        {
+            const col = command.bodyCollision;
+            console.log(col);
+            f.entityManager.delete(col.targetId);
+            f.entityManager.delete(col.id);
+        }
+
         // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
@@ -43,9 +51,9 @@ class TestSystem implements System<Entity, Command>
             
             const ball = f.entityManager.new();
             ball.transform.attach({
-                x:playerPosition[0] + v[0],
-                y:playerPosition[1] + v[1],
-                z:playerPosition[2] + v[2]
+                x:playerPosition[0] + v[0]*1.1,
+                y:playerPosition[1] + v[1]*1.1,
+                z:playerPosition[2] + v[2]*1.1
             });
 
             ball.body.attach(new Body({

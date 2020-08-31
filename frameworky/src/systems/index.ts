@@ -1,2 +1,2 @@
 export * from './BodySystem';
-export * from './THREESystem';
+export * from './THREESystem/THREESystem';

@@ -1,8 +1,8 @@
 import { System } from './System';
-import { THREESystem } from './systems/THREESystem';
+import { THREESystem } from './systems/THREESystem/THREESystem';
 import { BaseEntity } from './BaseEntity';
 import { EntityManager } from './EntityManager';
-import {BaseCommand} from './BaseCommand';
+import {BaseCommand} from './commands/BaseCommand';
 import { PlayerSystem } from './systems/PlayerSystem';
 import { BodySystem } from './systems';
 import { Mouse } from './commands';

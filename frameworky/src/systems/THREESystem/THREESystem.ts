@@ -1,14 +1,17 @@
-import { System } from "../System";
-import { Frameworky } from "../Frameworky";
+import { System } from "../../System";
+import { Frameworky } from "../../Frameworky";
 import * as THREE from 'three';
-import { BaseEntity } from "../BaseEntity";
-import { Transform } from "../components";
-import { BaseCommand } from '../BaseCommand';
-import { WorldMouse } from "../commands";
-import { Vector3 } from "three";
+import { BaseEntity } from "../../BaseEntity";
+import { Transform } from "../../components";
+import { BaseCommand } from '../../commands/BaseCommand';
+import { WorldMouse } from "../../commands";
 
 export class THREESystem implements System<BaseEntity, BaseCommand>
 {
+    debug = {
+        renderBodies:true
+    }
+
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;

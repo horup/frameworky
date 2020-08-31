@@ -1,7 +1,7 @@
 import { System } from "..";
 import { Frameworky } from "../Frameworky";
 import { BaseEntity } from "../BaseEntity";
-import { BaseCommand } from "../BaseCommand";
+import { BaseCommand } from "../commands/BaseCommand";
 
 export class PlayerSystem implements System
 {
