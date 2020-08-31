@@ -211,6 +211,16 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
 
             
         }, e=>e.transform.has);
+
+        // cleanup of deleted entities
+        for (let id in this.meshes)
+        {
+            if (this.f.entityManager.has(parseInt(id))== false)
+            {
+                this.scene.remove(this.meshes[id]);
+                delete this.meshes[id];
+            }
+        }
       
         this.lastElapsedFactor = elapsedFactor;
 
