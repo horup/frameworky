@@ -14,7 +14,7 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     private nextId = 0;
     private entities = new Map<number, E>(); 
     private systems:System<E, Command>[] = [];
-    private commandQueue:any[] = [];
+    private commandQueue:Command[] = [];
     private functionQueue:((f:this)=>void)[] = [];
 
     keys:{[key:string]:boolean} = {};
@@ -90,6 +90,13 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
         const now = this.now();
         const deltaTime = now - this.ticker.time;
         this.ticker.time = now;
+        const cmds = this.commandQueue;
+        this.commandQueue = [];
+        cmds.forEach(c=>{
+            if (c.entityDeleted)
+                this.entities.delete(c.entityDeleted.id);
+            this.executeCommand(c);
+        })
         const fs = this.functionQueue;
         this.functionQueue = [];
         fs.forEach(func=>{
@@ -133,6 +140,12 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
         return this;
     }
 
+    enqueueCommand(command:Command):this
+    {
+        this.commandQueue.push(command);
+        return this;
+    }
+
     enqueueFunction(f:(f:this)=>void)
     {
         this.functionQueue.push(f);
@@ -165,6 +178,7 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     {
         const e = new this.constructEntity(this.nextId++);//new Entity(this.nextId++);
         this.entities.set(e.id, e);
+        this.enqueueCommand({entityCreated:{id:e.id}} as Command);
         return e;
     }
 
@@ -176,7 +190,9 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     deleteEntity(id:number)
     {
         if (this.hasEntity(id))
-            this.entities.delete(id);
+        {
+            this.enqueueCommand({entityDeleted:{id:id}} as Command);
+        }
     }
 
     getEntity(id:number):E

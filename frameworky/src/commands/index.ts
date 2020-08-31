@@ -5,5 +5,6 @@ export * from './KeyDown';
 export * from './Mouse';
 export * from './WorldMouse';
 export * from './Body';
+export * from './Entity';
 
 export * from './BaseCommand';

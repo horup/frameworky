@@ -11,12 +11,40 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
 {
     world = new CANNON.World();
     bodies = new Map<number, CANNON.Body>();
+    f:Frameworky<BaseEntity>;
     init(f: Frameworky<BaseEntity>) {
+        this.f = f;
         //this.world.gravity.set(0,0, -9.82);
+    }
+
+    onCollide = (e:any)=>
+    {
+        const id = e.body.entityId;
+        const targetId = e.target.entityId;
+        this.f.executeCommand({
+            bodyCollision:{
+                id:id,
+                targetId:targetId
+            }
+        })
     }
 
     executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
     {
+        if (command.entityCreated)
+        {
+
+        }
+        if (command.entityDeleted)
+        {
+            if (this.bodies.has(command.entityDeleted.id))
+            {
+                const b = this.bodies.get(command.entityDeleted.id);
+                b.removeEventListener('collide', this.onCollide);
+                this.world.remove(b);
+                this.bodies.delete(command.entityDeleted.id);
+            }
+        }
         if (command.body)
         {
             if (command.body.applyForce)
@@ -54,16 +82,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
 
                     circle.collisionResponse = true;
 
-                    circle.addEventListener("collide", e=>{
-                        const id = e.body.entityId;
-                        const targetId = e.target.entityId;
-                       f.executeCommand({
-                           bodyCollision:{
-                               id:id,
-                               targetId:targetId
-                           }
-                       })
-                    })
+                    circle.addEventListener("collide", this.onCollide);
                     this.world.addBody(circle);
                     this.bodies.set(e.id, circle);
                 }
@@ -81,8 +100,8 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             const deleted:number[] = [];
             // ensure bodies a syncronized back to transform and body component
             this.bodies.forEach((body,id)=>{
-                if (f.hasEntity(id))
-                {
+                //if (f.hasEntity(id))
+               // {
                     const m = f.getEntity(id).transform.get();
                     const b = f.getEntity(id).body.get();
                     m.x = body.position.x;
@@ -91,11 +110,11 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     b.velocity.x = body.velocity.x;
                     b.velocity.y = body.velocity.y;
                     b.velocity.z = body.velocity.z;
-                }
+              /*  }
                 else
                 {
                     this.bodies.delete(id);
-                }
+                }*/
                 
             })
         }

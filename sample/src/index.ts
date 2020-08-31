@@ -22,22 +22,13 @@ class TestSystem implements System<Entity, Command>
     }
 
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-      /*  if (command.fixedUpdate)
-        {
-            f.entityManager.forEach(e=>{
-                e.transform.get().x-=0.1;
-            }, e=>e.id == 1 && e.transform.has);
-        }*/
-
         if (command.bodyCollision)
         {
             const col = command.bodyCollision;
-            console.log(col);
-            f.deleteEntity(col.targetId);
-            f.deleteEntity(col.id);
+          /*  f.deleteEntity(col.targetId);
+            f.deleteEntity(col.id);*/
         }
 
-        // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
             const cmd = command.worldMouseDown;
@@ -66,24 +57,6 @@ class TestSystem implements System<Entity, Command>
             v2.x = v[0];
             v2.y = v[1];
             v2.z = v[2];
-
-            
-           /* f.executeCommand({
-                body:{
-                    applyForce:{
-                        v:{x:-1, y:0, z:0},
-                        id:1 
-                    }
-                }
-            })*/
-        /*    f.enqueueFunction(f=>{
-                const m = command.worldMouseDown;
-                console.log(m);
-                const first = f.entityManager.get(1);
-                const t = first.transform.get();
-                t.x = m.x;
-                t.y = m.y;
-            })*/
         }
     }
    

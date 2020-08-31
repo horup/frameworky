@@ -1,5 +1,6 @@
 import { FixedUpdate, Update, KeyDown, KeyUp, MouseMove, MouseDown, MouseUp, WorldMouseMove, WorldMouseUp, WorldMouseDown, BodyCommand } from ".";
 import { BodyCollision } from "./Body";
+import { EntityCreated, EntityDeleted } from "./Entity";
 export interface BaseCommand
 {
     fixedUpdate?:FixedUpdate
@@ -19,4 +20,7 @@ export interface BaseCommand
 
 
     bodyCollision?:BodyCollision;
+
+    entityCreated?:EntityCreated;
+    entityDeleted?:EntityDeleted;
 }
