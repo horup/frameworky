@@ -1,27 +1,28 @@
 import { System } from './System';
 import { THREESystem } from './systems/THREESystem/THREESystem';
 import { BaseEntity } from './BaseEntity';
-import { EntityManager } from './EntityManager';
 import {BaseCommand} from './commands/BaseCommand';
 import { PlayerSystem } from './systems/PlayerSystem';
 import { BodySystem } from './systems';
 import { Mouse } from './commands';
 
-export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand = BaseCommand>
+export class Frameworky<E extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
     readonly ticker = {count:0, time:0, rateMS:0 };
 
-    private systems:System<Entity, Command>[] = [];
+    private constructEntity:new(id:number)=>E;
+    private nextId = 0;
+    private entities = new Map<number, E>(); 
+    private systems:System<E, Command>[] = [];
     private commandQueue:any[] = [];
     private functionQueue:((f:this)=>void)[] = [];
-    readonly entityManager:EntityManager<Entity>;
 
     keys:{[key:string]:boolean} = {};
     mouse:Mouse = {x:0, y:0, buttons:0};
 
-    constructor(newEntity:new (id:number)=>Entity, onReady:(f:Frameworky<Entity, Command>)=>void, tickRateMS:number = 50)
+    constructor(constructEntity:new (id:number)=>E, onReady:(f:Frameworky<E, Command>)=>void, tickRateMS:number = 50)
     {
-        this.entityManager = new EntityManager<Entity>(newEntity);
+        this.constructEntity = constructEntity;
         this.ticker.rateMS = tickRateMS;
 
         document.addEventListener("keydown", (e)=>{
@@ -106,7 +107,7 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
         } as Command);
     }
 
-    addSystem(system:System<Entity, Command>)
+    addSystem(system:System<E, Command>)
     {
         this.systems.push(system);
         system.init(this);
@@ -131,15 +132,60 @@ export class Frameworky<Entity extends BaseEntity, Command extends BaseCommand =
         this.systems.forEach(s=>s.executeCommand(this, command));
         return this;
     }
-/*
-    enqueueCommand(command:Command):this
-    {
-        this.commandQueue.push(command);
-        return this;
-    }*/
 
     enqueueFunction(f:(f:this)=>void)
     {
         this.functionQueue.push(f);
+    }
+
+  
+    forEachEntity(f:(e:E)=>void, pred?:(e:E)=>boolean)
+    {
+        this.entities.forEach((e, id)=>{
+            if (pred == null || pred(e))
+                f(e);
+        })
+    }
+
+    filterEntity(pred:(e:E)=>boolean):E[]
+    {
+        const arr:E[] = [];
+        this.forEachEntity(e=>{
+            arr.push(e);
+        }, pred)
+        return arr;
+    }
+
+    firstEntity(pred:(e:E)=>boolean):E
+    {
+        return this.filterEntity(pred)[0];
+    }
+
+    newEntity():E
+    {
+        const e = new this.constructEntity(this.nextId++);//new Entity(this.nextId++);
+        this.entities.set(e.id, e);
+        return e;
+    }
+
+    hasEntity(id:number)
+    {
+        return this.entities.has(id);
+    }
+
+    deleteEntity(id:number)
+    {
+        if (this.hasEntity(id))
+            this.entities.delete(id);
+    }
+
+    getEntity(id:number):E
+    {
+        return this.entities.get(id);
+    }
+
+    get size()
+    {
+        return this.entities.size;
     }
 }

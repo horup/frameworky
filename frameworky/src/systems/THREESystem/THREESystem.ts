@@ -157,7 +157,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             }
         }) 
   
-        this.f.entityManager.forEach(e=>{
+        this.f.forEachEntity(e=>{
             const transform = e.transform.get();
             const interpolate = !e.playerController.has || !e.playerController.get().disableInterpolation;
             if (this.meshes[e.id] == null)
@@ -215,7 +215,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         // cleanup of deleted entities
         for (let id in this.meshes)
         {
-            if (this.f.entityManager.has(parseInt(id))== false)
+            if (this.f.hasEntity(parseInt(id))== false)
             {
                 this.scene.remove(this.meshes[id]);
                 delete this.meshes[id];

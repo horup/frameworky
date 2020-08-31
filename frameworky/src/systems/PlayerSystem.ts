@@ -11,7 +11,7 @@ export class PlayerSystem implements System
     executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command: BaseCommand) {
         if (command.update)
         {
-            f.entityManager.forEach(e=>{
+            f.forEachEntity(e=>{
                 const t = e.transform.get();
                 const k = f.keys;
                 const p = e.playerController.get();

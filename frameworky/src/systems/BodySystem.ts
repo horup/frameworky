@@ -22,7 +22,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             if (command.body.applyForce)
             {
                 const applyForce = command.body.applyForce;
-                const e = f.entityManager.get(applyForce.id);
+                const e = f.getEntity(applyForce.id);
                 if (e && e.body.has)
                 {
                     const b = this.bodies.get(e.id);
@@ -38,7 +38,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
         if (command.fixedUpdate)
         {
             // ensure bodies are syncronized to world
-            f.entityManager.forEach(e=>{
+            f.forEachEntity(e=>{
                 const m = e.transform.get();
                 const b = e.body.get();
                 if (this.bodies.has(e.id) == false)
@@ -81,10 +81,10 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             const deleted:number[] = [];
             // ensure bodies a syncronized back to transform and body component
             this.bodies.forEach((body,id)=>{
-                if (f.entityManager.has(id))
+                if (f.hasEntity(id))
                 {
-                    const m = f.entityManager.get(id).transform.get();
-                    const b = f.entityManager.get(id).body.get();
+                    const m = f.getEntity(id).transform.get();
+                    const b = f.getEntity(id).body.get();
                     m.x = body.position.x;
                     m.y = body.position.y;
                     m.z = body.position.z;

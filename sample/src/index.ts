@@ -33,15 +33,15 @@ class TestSystem implements System<Entity, Command>
         {
             const col = command.bodyCollision;
             console.log(col);
-            f.entityManager.delete(col.targetId);
-            f.entityManager.delete(col.id);
+            f.deleteEntity(col.targetId);
+            f.deleteEntity(col.id);
         }
 
         // enqueue a command that is executed during fixedUpdate
         if (command.worldMouseDown)
         {
             const cmd = command.worldMouseDown;
-            const player = f.entityManager.first(e=>e.playerController.has);
+            const player = f.firstEntity(e=>e.playerController.has);
             const t = player.transform.get();
             let playerPosition = vec3.fromValues(t.x, t.y, t.z);
             let worldPosition = vec3.fromValues(cmd.x, cmd.y, cmd.z);
@@ -49,7 +49,7 @@ class TestSystem implements System<Entity, Command>
             vec3.sub(v, worldPosition, playerPosition);
             vec3.normalize(v, v);
             
-            const ball = f.entityManager.new();
+            const ball = f.newEntity();
             ball.transform.attach({
                 x:playerPosition[0] + v[0]*1.1,
                 y:playerPosition[1] + v[1]*1.1,
@@ -93,7 +93,7 @@ new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
 
-    const camera = f.entityManager.new();
+    const camera = f.newEntity();
     camera.transform.attach({
         x:0, y:0, z:20
     });
@@ -101,14 +101,14 @@ new Frameworky<Entity>(Entity, (f)=>{
         isActive:true
     })
 
-    const player = f.entityManager.new();
+    const player = f.newEntity();
     player.transform.attach({x:-10, y:0, z:0});
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
     const spread = 10;
     for (let i = 0; i < 10; i++)
     {
-        const e = f.entityManager.new();
+        const e = f.newEntity();
         e.transform.attach({
             x:Math.random() * spread - spread/2 + 5,
             y:Math.random() * spread - spread/2,
