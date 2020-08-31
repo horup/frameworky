@@ -47,16 +47,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private raycaster = new THREE.Raycaster();
     executeCommand(f: Frameworky<BaseEntity, BaseCommand>, command:BaseCommand) 
     {
-       /* if (command.fixedUpdate)
-        {
-            const prevPosition = this.position[0];
-            const nextPosition = this.position[1];
-            f.entityManager.forEach(e=>{
-                prevPosition[e.id] = nextPosition[e.id];
-                nextPosition[e.id] = {...e.transform.get()};
-            }, e=>e.transform.has);
-        }
-        else*/ if (command.mouseDown)
+        if (command.mouseDown)
         {
             this.worldMouse.buttons = command.mouseDown.buttons;
             this.f.executeCommand({
@@ -82,21 +73,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 }
             })
         }
-     /*   else if (command.mouseMove)
-        {
-            const m = command.mouseMove;
-            this.screenMouse.x = m.x / window.innerWidth * 2 - 1;
-            this.screenMouse.y = -(m.y / window.innerHeight * 2 - 1);
-            console.log(this.screenMouse);
-            this.raycaster.setFromCamera(this.screenMouse, this.camera);
-            let intersects = new THREE.Vector3();
-            this.raycaster.ray.intersectPlane(this.planeZ, intersects);
-            console.log(intersects);
-        }*/
-       /* if (command.helloFromBodySystem)
-        {
-            this.bodies = command.helloFromBodySystem.bodies;
-        }*/
     }
 
     get width()
@@ -163,6 +139,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             if (this.meshes[e.id] == null)
             {
                 this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
+                this.meshes[e.id].position.x = transform.x;
+                this.meshes[e.id].position.y = transform.y;
+                this.meshes[e.id].position.z = transform.z;
                 this.scene.add(this.meshes[e.id]);
             }
 
