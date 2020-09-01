@@ -20,7 +20,7 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     keys:{[key:string]:boolean} = {};
     mouse:Mouse = {x:0, y:0, buttons:0};
 
-    constructor(constructEntity:new (id:number)=>E, onSetup:(f:Frameworky<E, Command>)=>any, onReady:(f:Frameworky<E, Command>)=>void, tickRateMS:number = 50)
+    constructor(constructEntity:new (id:number)=>E, onReady:(f:Frameworky<E, Command>)=>void, tickRateMS:number = 50)
     {
         this.constructEntity = constructEntity;
         this.ticker.rateMS = tickRateMS;
@@ -80,10 +80,9 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
         });
 
         document.oncontextmenu = ()=>false;
-        onSetup(this);
-        this.initSystems();
         setInterval(()=>this.onTick(), this.ticker.rateMS);
         onReady(this);  
+        this.initSystems();
     }
 
     private initSystems()
@@ -127,9 +126,9 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
 
 
 
-    getSystem<T>(constructor:new ()=>T)
+    getSystem<T extends System<E, Command>>(constructor:new ()=>T):T
     {
-        return this.systems.filter(s=>s.constructor.name == constructor.name)[0];
+        return this.systems.filter(s=>s.constructor.name == constructor.name)[0] as T;
     }
 
     addDefaultSystems():this

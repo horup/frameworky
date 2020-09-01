@@ -22,13 +22,6 @@ class TestSystem implements System<Entity, Command>
     }
 
     executeCommand(f: Frameworky<Entity, Command>, command: Command) {
-        if (command.bodyCollision)
-        {
-            const col = command.bodyCollision;
-          /*  f.deleteEntity(col.targetId);
-            f.deleteEntity(col.id);*/
-        }
-
         if (command.worldMouseDown)
         {
             const cmd = command.worldMouseDown;
@@ -39,8 +32,23 @@ class TestSystem implements System<Entity, Command>
             let v = vec3.create();
             vec3.sub(v, worldPosition, playerPosition);
             vec3.normalize(v, v);
+            vec3.add(v, playerPosition, v);
+
+            const bodySystem = f.getSystem(BodySystem);
+            const res = bodySystem.raycast(playerPosition, worldPosition);
             
-            const ball = f.newEntity();
+            if (res.hasHit)
+            {
+                const e = f.getEntity(res.id);
+                if (e.health.has)
+                {
+                    e.health.get().amount--;
+                    if (e.health.get().amount <= 0)
+                        f.deleteEntity(res.id);
+                }
+            }
+            
+           /* const ball = f.newEntity();
             ball.transform.attach({
                 x:playerPosition[0] + v[0]*1.1,
                 y:playerPosition[1] + v[1]*1.1,
@@ -48,7 +56,7 @@ class TestSystem implements System<Entity, Command>
             });
 
             ball.body.attach(new Body({
-
+                collisionResponse: false
             }));
 
             vec3.scale(v, v, 100);
@@ -56,7 +64,7 @@ class TestSystem implements System<Entity, Command>
             const v2 = ball.body.get().velocity;
             v2.x = v[0];
             v2.y = v[1];
-            v2.z = v[2];
+            v2.z = v[2];*/
         }
     }
    
@@ -65,7 +73,7 @@ class TestSystem implements System<Entity, Command>
 new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
-}, (f)=>{
+
     const camera = f.newEntity();
     camera.transform.attach({
         x:0, y:0, z:20
@@ -88,7 +96,7 @@ new Frameworky<Entity>(Entity, (f)=>{
             z:0
         });
         e.health.attach({
-            amount:100
+            amount:3
         })
 
         e.body.attach(new Body());

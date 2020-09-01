@@ -17,4 +17,5 @@ export class Body
     shape:BodyShape = BodyShape.Sphere;
     linearDamping:number = 0.99;
     velocity:{x:number, y:number, z:number} = {x:0, y:0, z:0};
+    collisionResponse = true;
 }

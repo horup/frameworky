@@ -5,6 +5,8 @@ import { BaseCommand } from "../commands/BaseCommand";
 //import {Engine, Bodies, Body, World} from 'matter-js';
 import * as CANNON from 'cannon';
 import { BodyShape } from "..";
+import { CircleBufferGeometry } from "three";
+import { vec3 } from "gl-matrix";
 
 
 export class BodySystem implements System<BaseEntity, BaseCommand>
@@ -27,6 +29,20 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 targetId:targetId
             }
         })
+    }
+
+    raycast(from:vec3, to:vec3)
+    {
+        const results = new CANNON.RaycastResult();
+        this.world.rayTest(
+            new CANNON.Vec3(from[0], from[1], from[2]), 
+            new CANNON.Vec3(to[0], to[1], to[2]),
+            results);
+        return {
+            hasHit:results.hasHit,
+            id:results.hasHit ? (results.body as any).entityId as number : null,
+            hitPoint:results.hasHit ? vec3.fromValues(results.hitPointWorld.x, results.hitPointWorld.y, results.hitPointWorld.z) : null
+        }
     }
 
     executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
@@ -84,7 +100,6 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                     (circle as any).entityId = e.id;
 
                     circle.collisionResponse = true;
-
                     circle.addEventListener("collide", this.onCollide);
                     this.world.addBody(circle);
                     this.bodies.set(e.id, circle);
@@ -92,6 +107,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 else
                 {
                     const body =  this.bodies.get(e.id);
+                    body.collisionResponse = b.collisionResponse;
                     //b.applyForce(new CANNON.Vec3(-100, 0,0),new CANNON.Vec3(0, 0,0));
                     body.position.set(m.x, m.y, m.z);
                     body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
