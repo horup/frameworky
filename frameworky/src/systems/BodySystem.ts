@@ -45,6 +45,20 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
         }
     }
 
+    private toVec3(v:vec3)
+    {
+        return new CANNON.Vec3(v[0], v[1], v[2]);
+    }
+
+    applyForce(target:number, force:vec3, worldPoint:vec3)
+    {
+        const body = this.bodies.get(target);
+        if (body != null)
+        {
+            body.applyForce(this.toVec3(force), this.toVec3(worldPoint));
+        }
+    }
+
     executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
     {
         if (command.entityCreated)

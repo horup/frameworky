@@ -32,7 +32,8 @@ class TestSystem implements System<Entity, Command>
             let v = vec3.create();
             vec3.sub(v, worldPosition, playerPosition);
             vec3.normalize(v, v);
-            vec3.add(v, playerPosition, v);
+           // vec3.add(v, playerPosition, v);
+            
 
             const bodySystem = f.getSystem(BodySystem);
             const res = bodySystem.raycast(playerPosition, worldPosition);
@@ -42,6 +43,9 @@ class TestSystem implements System<Entity, Command>
                 const e = f.getEntity(res.id);
                 if (e.health.has)
                 {
+                    vec3.scale(v, v, 100);
+                    bodySystem.applyForce(e.id, v, playerPosition);
+                    console.log(v);
                     e.health.get().amount--;
                     if (e.health.get().amount <= 0)
                         f.deleteEntity(res.id);
