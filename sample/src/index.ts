@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem} from 'frameworky';
        
 interface Health
 {
@@ -65,7 +65,7 @@ class TestSystem implements System<Entity, Command>
 new Frameworky<Entity>(Entity, (f)=>{
     f.addDefaultSystems();
     f.addSystem(new TestSystem());
-
+}, (f)=>{
     const camera = f.newEntity();
     camera.transform.attach({
         x:0, y:0, z:20

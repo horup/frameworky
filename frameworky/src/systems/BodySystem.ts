@@ -65,6 +65,9 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
         }
         if (command.fixedUpdate)
         {
+        /*    const rayResult = new CANNON.RaycastResult();
+            this.world.rayTest(new CANNON.Vec3(0,0,0), new CANNON.Vec3(100,0,0), rayResult);
+            console.log(rayResult.);*/
             // ensure bodies are syncronized to world
             f.forEachEntity(e=>{
                 const m = e.transform.get();
