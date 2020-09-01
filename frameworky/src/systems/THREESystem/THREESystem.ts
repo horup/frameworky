@@ -18,6 +18,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private planeZ = new THREE.Plane(new THREE.Vector3(0,0, 1), 0);
     private meshes:{[id:number]:THREE.Mesh} = {};
     private f:Frameworky<BaseEntity, BaseCommand>;
+    //private textsDiv:HTMLDivElement;
     init(f: Frameworky<BaseEntity, BaseCommand>) 
     {
         this.f = f;
@@ -26,7 +27,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         s.style.overflow = "hidden";
         this.renderer = new THREE.WebGLRenderer({antialias:true});
         document.body.appendChild(this.renderer.domElement);
-
         window.onresize = ()=>{
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         }
@@ -37,6 +37,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 100 );
         this.camera.position.z = 10;
         this.scene = new THREE.Scene();
+
+
+        
 
         window.requestAnimationFrame(()=>this.onAnimationFrame());
     }
@@ -113,6 +116,45 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     private lastFrame = performance.now() / 1000;
     private lastElapsedFactor = 0;
     private frames = 0;
+
+
+    private worldToScreen(p:THREE.Vector3):THREE.Vector2
+    {
+        const projected = p.project(this.camera);
+        const v2 = new THREE.Vector2(projected.x * this.width / 2 + this.width/2, projected.y * this.height/2 + this.height/2);
+        v2.y = this.height - v2.y;
+        return v2;
+    }
+
+    private updateTexts()
+    {
+        this.f.forEachEntity(e=>{
+            let el = document.getElementById(e.id.toString());
+            if (el == null)
+            {
+                el = document.createElement("div") as HTMLDivElement;
+                document.body.appendChild(el);
+                const s = el.style;
+                s.position = 'absolute';
+                s.userSelect = 'none';
+            }
+
+            const s = el.style;
+            s.color = 'white';
+            el.id = e.id.toString();
+            
+            const t = e.text.get().text;
+            if (el.innerText != t)
+                el.innerText = t;
+
+            const p = e.transform.get();
+            const v = this.worldToScreen(new THREE.Vector3(p.x, p.y, p.z));
+            s.left = v.x + 'px';
+            s.top = v.y + 'px';
+
+            
+        }, e=>e.text.has && e.transform.has);
+    }
     private onAnimationFrame()
     {
         this.frames++;
@@ -131,7 +173,9 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 time:now,
                 count:this.frames
             }
-        }) 
+        });
+
+        this.updateTexts();
   
         this.f.forEachEntity(e=>{
             const transform = e.transform.get();

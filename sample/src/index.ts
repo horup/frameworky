@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem, Text} from 'frameworky';
        
 interface Health
 {
@@ -87,6 +87,9 @@ new Frameworky<Entity>(Entity, (f)=>{
     })
 
     const player = f.newEntity();
+    player.text.attach(new Text({
+        text:"Player!"
+    }));
     player.transform.attach({x:-10, y:0, z:0});
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
