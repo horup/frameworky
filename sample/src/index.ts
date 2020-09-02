@@ -32,8 +32,6 @@ class TestSystem implements System<Entity, Command>
             let v = vec3.create();
             vec3.sub(v, worldPosition, playerPosition);
             vec3.normalize(v, v);
-           // vec3.add(v, playerPosition, v);
-            
 
             const bodySystem = f.getSystem(BodySystem);
             const res = bodySystem.raycast(playerPosition, worldPosition);
@@ -45,30 +43,11 @@ class TestSystem implements System<Entity, Command>
                 {
                     vec3.scale(v, v, 100);
                     bodySystem.applyForce(e.id, v, playerPosition);
-                    console.log(v);
                     e.health.get().amount--;
                     if (e.health.get().amount <= 0)
                         f.deleteEntity(res.id);
                 }
             }
-            
-           /* const ball = f.newEntity();
-            ball.transform.attach({
-                x:playerPosition[0] + v[0]*1.1,
-                y:playerPosition[1] + v[1]*1.1,
-                z:playerPosition[2] + v[2]*1.1
-            });
-
-            ball.body.attach(new Body({
-                collisionResponse: false
-            }));
-
-            vec3.scale(v, v, 100);
-
-            const v2 = ball.body.get().velocity;
-            v2.x = v[0];
-            v2.y = v[1];
-            v2.z = v[2];*/
         }
     }
    
