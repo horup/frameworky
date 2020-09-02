@@ -5,6 +5,7 @@ import { BaseEntity } from "../../BaseEntity";
 import { Transform } from "../../components";
 import { BaseCommand } from '../../commands/BaseCommand';
 import { WorldMouse } from "../../commands";
+import { lerp3 } from "../../Math";
 
 export class THREESystem implements System<BaseEntity, BaseCommand>
 {
@@ -126,7 +127,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         return v2;
     }
 
-    private updateTexts()
+    /*private updateTexts(elapsedFactor:number)
     {
         this.f.forEachEntity(e=>{
             let el = document.getElementById(e.id.toString());
@@ -154,6 +155,35 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
 
             
         }, e=>e.text.has && e.transform.has);
+    }*/
+
+    private updateText(e:BaseEntity, x:number, y:number, z:number)
+    {
+        if (e.text.has)
+        {
+            let el = document.getElementById(e.id.toString());
+            if (el == null)
+            {
+                el = document.createElement("div") as HTMLDivElement;
+                document.body.appendChild(el);
+                const s = el.style;
+                s.position = 'absolute';
+                s.userSelect = 'none';
+            }
+
+            const s = el.style;
+            s.color = 'white';
+            el.id = e.id.toString();
+            
+            const t = e.text.get().text;
+            if (el.innerText != t)
+                el.innerText = t;
+
+            
+            const v = this.worldToScreen(new THREE.Vector3(x, y, z));
+            s.left = v.x + 'px';
+            s.top = v.y + 'px';
+        }
     }
     private onAnimationFrame()
     {
@@ -175,7 +205,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             }
         });
 
-        this.updateTexts();
   
         this.f.forEachEntity(e=>{
             const transform = e.transform.get();
@@ -212,9 +241,15 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                     nextPosition[e.id].z = transform.z;
                 }
             
-                this.meshes[e.id].position.x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
-                this.meshes[e.id].position.y = prevPosition[e.id].y + (nextPosition[e.id].y - prevPosition[e.id].y) * elapsedFactor;
-                this.meshes[e.id].position.z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;
+                const x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
+                const y = prevPosition[e.id].y + (nextPosition[e.id].y - prevPosition[e.id].y) * elapsedFactor;
+                const z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;
+
+                this.meshes[e.id].position.x = x;
+                this.meshes[e.id].position.y = y;
+                this.meshes[e.id].position.z = z;
+
+                this.updateText(e, x, y, z);
             }
             else
             {
@@ -222,6 +257,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.meshes[e.id].position.x = transform.x;
                 this.meshes[e.id].position.y = transform.y;
                 this.meshes[e.id].position.z = transform.z;
+                this.updateText(e, transform.x, transform.y, transform.z);
             }
             
             if (e.camera.has && e.camera.get().isActive)
@@ -231,9 +267,14 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.camera.position.z = e.transform.get().z;
             }
 
+            
+
+
 
             
         }, e=>e.transform.has);
+
+
 
         // cleanup of deleted entities
         for (let id in this.meshes)
