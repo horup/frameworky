@@ -7,6 +7,7 @@ import { BaseCommand } from '../../commands/BaseCommand';
 import { WorldMouse } from "../../commands";
 import { lerp3 } from "../../Math";
 import { vec3 } from "gl-matrix";
+import * as Stats from 'stats.js';
 
 export class THREESystem implements System<BaseEntity, BaseCommand>
 {
@@ -14,6 +15,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         renderBodies:true
     }
 
+    private stats = new Stats();
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;
@@ -29,6 +31,8 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         s.style.overflow = "hidden";
         this.renderer = new THREE.WebGLRenderer({antialias:true});
         document.body.appendChild(this.renderer.domElement);
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.dom);
         window.onresize = ()=>{
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         }
@@ -188,6 +192,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
     }
     private onAnimationFrame()
     {
+        this.stats.begin();
         this.frames++;
         const now = performance.now() / 1000;
         window.requestAnimationFrame((c)=>this.onAnimationFrame());
@@ -266,6 +271,8 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.lastElapsedFactor = elapsedFactor;
 
         this.renderer.render(this.scene, this.camera);
+
+        this.stats.end();
     }
 
 }

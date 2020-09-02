@@ -93,8 +93,9 @@ new Frameworky<Entity>(Entity, (f)=>{
     player.transform.attach(new Transform({position:[-10, 0, 0]}));
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
+    const max = 1000;
     const spread = 10;
-    for (let i = 0; i < 10; i++)
+    for (let i = 0; i < max; i++)
     {
         const e = f.newEntity();
         e.transform.attach(new Transform({position:[Math.random() * spread - spread/2 + 5, Math.random() * spread - spread/2, 0]}));
