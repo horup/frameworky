@@ -6,6 +6,7 @@ import { Transform } from "../../components";
 import { BaseCommand } from '../../commands/BaseCommand';
 import { WorldMouse } from "../../commands";
 import { lerp3 } from "../../Math";
+import { vec3 } from "gl-matrix";
 
 export class THREESystem implements System<BaseEntity, BaseCommand>
 {
@@ -157,7 +158,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         }, e=>e.text.has && e.transform.has);
     }*/
 
-    private updateText(e:BaseEntity, x:number, y:number, z:number)
+    private updateText(e:BaseEntity, p:vec3)
     {
         if (e.text.has)
         {
@@ -180,7 +181,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 el.innerText = t;
 
             
-            const v = this.worldToScreen(new THREE.Vector3(x, y, z));
+            const v = this.worldToScreen(new THREE.Vector3(p[0],  p[1], p[2]));
             s.left = v.x + 'px';
             s.top = v.y + 'px';
         }
@@ -212,59 +213,35 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             if (this.meshes[e.id] == null)
             {
                 this.meshes[e.id] = new THREE.Mesh(new THREE.SphereGeometry(0.5), new THREE.MeshNormalMaterial());
-                this.meshes[e.id].position.x = transform.x;
-                this.meshes[e.id].position.y = transform.y;
-                this.meshes[e.id].position.z = transform.z;
+                this.meshes[e.id].position.x = transform.position[0];
+                this.meshes[e.id].position.y = transform.position[1];
+                this.meshes[e.id].position.z = transform.position[2];
                 this.scene.add(this.meshes[e.id]);
             }
 
             if (interpolate)
             {
-                const prevPosition = this.position[0];
-                const nextPosition = this.position[1];
-                if (prevPosition[e.id] == null)
-                    prevPosition[e.id] = {...transform};
-                if (nextPosition[e.id] == null)
-                    nextPosition[e.id] = {...transform};
+                const p = lerp3(transform.prevPosition, transform.position, elapsedFactor);
+                this.updateText(e, p);
+                this.meshes[e.id].position.x = p[0];
+                this.meshes[e.id].position.y = p[1];
+                this.meshes[e.id].position.z = p[2];
 
-                if ((transform.x != nextPosition[e.id].x ||
-                     transform.y != nextPosition[e.id].y ||
-                     transform.z != nextPosition[e.id].z)|| 
-                     elapsedFactor < this.lastElapsedFactor)
-                {
-                    prevPosition[e.id].x = this.meshes[e.id].position.x;
-                    prevPosition[e.id].y = this.meshes[e.id].position.y;
-                    prevPosition[e.id].z = this.meshes[e.id].position.z;
-
-                    nextPosition[e.id].x = transform.x;
-                    nextPosition[e.id].y = transform.y;
-                    nextPosition[e.id].z = transform.z;
-                }
-            
-                const x = prevPosition[e.id].x + (nextPosition[e.id].x - prevPosition[e.id].x) * elapsedFactor;
-                const y = prevPosition[e.id].y + (nextPosition[e.id].y - prevPosition[e.id].y) * elapsedFactor;
-                const z = prevPosition[e.id].z + (nextPosition[e.id].z - prevPosition[e.id].z) * elapsedFactor;
-
-                this.meshes[e.id].position.x = x;
-                this.meshes[e.id].position.y = y;
-                this.meshes[e.id].position.z = z;
-
-                this.updateText(e, x, y, z);
             }
             else
             {
                 // not interpolated, simply set position
-                this.meshes[e.id].position.x = transform.x;
-                this.meshes[e.id].position.y = transform.y;
-                this.meshes[e.id].position.z = transform.z;
-                this.updateText(e, transform.x, transform.y, transform.z);
+                this.meshes[e.id].position.x = transform.position[0];
+                this.meshes[e.id].position.y = transform.position[1];
+                this.meshes[e.id].position.z = transform.position[2];
+                this.updateText(e, transform.position);
             }
             
             if (e.camera.has && e.camera.get().isActive)
             {
-                this.camera.position.x = e.transform.get().x;
-                this.camera.position.y = e.transform.get().y;
-                this.camera.position.z = e.transform.get().z;
+                this.camera.position.x = e.transform.get().position[0];
+                this.camera.position.y = e.transform.get().position[1];
+                this.camera.position.z = e.transform.get().position[2];
             }
 
             

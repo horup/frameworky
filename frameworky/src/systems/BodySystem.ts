@@ -95,37 +95,37 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
         }
         if (command.fixedUpdate)
         {
-        /*    const rayResult = new CANNON.RaycastResult();
-            this.world.rayTest(new CANNON.Vec3(0,0,0), new CANNON.Vec3(100,0,0), rayResult);
-            console.log(rayResult.);*/
+            // store current position as previous
+            f.forEachEntity(e=>{
+                const t = e.transform.get();
+                vec3.copy(t.prevPosition, t.position);
+            }, e=>e.transform.has);
+
             // ensure bodies are syncronized to world
             f.forEachEntity(e=>{
                 const m = e.transform.get();
                 const b = e.body.get();
                 if (this.bodies.has(e.id) == false)
                 {
+                    // create missing body.
                     const circle = new CANNON.Body({
                         mass: b.mass,
-                        position: new CANNON.Vec3(m.x, m.y, m.z),
+                        position: new CANNON.Vec3(m.position[0], m.position[1], m.position[2]),
                         velocity: new CANNON.Vec3(b.velocity.x, b.velocity.y, b.velocity.z),
                         shape: b.shape == BodyShape.Sphere ? new CANNON.Sphere(0.5) : undefined,
                         linearDamping:b.linearDamping
                     });
                     (circle as any).entityId = e.id;
 
-                    circle.collisionResponse = true;
                     circle.addEventListener("collide", this.onCollide);
                     this.world.addBody(circle);
                     this.bodies.set(e.id, circle);
                 }
-                else
-                {
-                    const body =  this.bodies.get(e.id);
-                    body.collisionResponse = b.collisionResponse;
-                    //b.applyForce(new CANNON.Vec3(-100, 0,0),new CANNON.Vec3(0, 0,0));
-                    body.position.set(m.x, m.y, m.z);
-                    body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
-                }
+                
+                const body =  this.bodies.get(e.id);
+                body.collisionResponse = b.collisionResponse;
+                body.position.set(m.position[0], m.position[1], m.position[2]);
+                body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
             }, e=>e.body.has && e.transform.has);
             
             this.world.step(command.fixedUpdate.tickRate);
@@ -133,22 +133,14 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             const deleted:number[] = [];
             // ensure bodies a syncronized back to transform and body component
             this.bodies.forEach((body,id)=>{
-                //if (f.hasEntity(id))
-               // {
-                    const m = f.getEntity(id).transform.get();
+                    const t = f.getEntity(id).transform.get();
                     const b = f.getEntity(id).body.get();
-                    m.x = body.position.x;
-                    m.y = body.position.y;
-                    m.z = body.position.z;
+                    t.position[0] = body.position.x;
+                    t.position[1] = body.position.y;
+                    t.position[2] = body.position.z;
                     b.velocity.x = body.velocity.x;
                     b.velocity.y = body.velocity.y;
                     b.velocity.z = body.velocity.z;
-              /*  }
-                else
-                {
-                    this.bodies.delete(id);
-                }*/
-                
             })
         }
     }

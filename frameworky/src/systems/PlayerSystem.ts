@@ -31,6 +31,7 @@ export class PlayerSystem implements System
                     }
                     body.velocity.x = velocity.x * p.speed;
                     body.velocity.y = velocity.y * p.speed;
+
                  /*   if (l>0)
                     {
                         force.x /= l;
@@ -50,8 +51,8 @@ export class PlayerSystem implements System
                 else
                 {
                     const speed = 5.0 * command.update.deltaTime;
-                    t.y += k.w ? speed : k.s ? -speed : 0;
-                    t.x += k.a ? -speed : k.d ? speed : 0;
+                    t.position[1] += k.w ? speed : k.s ? -speed : 0;
+                    t.position[0] += k.a ? -speed : k.d ? speed : 0;
                 }
             }, e=>e.transform.has && e.playerController.has);
         }

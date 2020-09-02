@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem, Text} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem, Text, Transform} from 'frameworky';
        
 interface Health
 {
@@ -26,8 +26,8 @@ class TestSystem implements System<Entity, Command>
         {
             const cmd = command.worldMouseDown;
             const player = f.firstEntity(e=>e.playerController.has);
-            const t = player.transform.get();
-            let playerPosition = vec3.fromValues(t.x, t.y, t.z);
+            const t = player.transform.get().position;
+            let playerPosition = vec3.fromValues(t[0], t[1], t[2]);
             let worldPosition = vec3.fromValues(cmd.x, cmd.y, cmd.z);
             let v = vec3.create();
             vec3.sub(v, worldPosition, playerPosition);
@@ -79,9 +79,9 @@ new Frameworky<Entity>(Entity, (f)=>{
     f.addSystem(new TestSystem());
 
     const camera = f.newEntity();
-    camera.transform.attach({
-        x:0, y:0, z:20
-    });
+    camera.transform.attach(new Transform({
+        position:[0,0,20]
+    }));
     camera.camera.attach({
         isActive:true
     })
@@ -90,18 +90,14 @@ new Frameworky<Entity>(Entity, (f)=>{
     player.text.attach(new Text({
         text:"Player!"
     }));
-    player.transform.attach({x:-10, y:0, z:0});
+    player.transform.attach(new Transform({position:[-10, 0, 0]}));
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
     const spread = 10;
     for (let i = 0; i < 10; i++)
     {
         const e = f.newEntity();
-        e.transform.attach({
-            x:Math.random() * spread - spread/2 + 5,
-            y:Math.random() * spread - spread/2,
-            z:0
-        });
+        e.transform.attach(new Transform({position:[Math.random() * spread - spread/2 + 5, Math.random() * spread - spread/2, 0]}));
         e.health.attach({
             amount:3
         })
