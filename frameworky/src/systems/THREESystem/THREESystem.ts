@@ -4,7 +4,7 @@ import * as THREE from 'three';
 import { BaseEntity } from "../../BaseEntity";
 import { Transform } from "../../components";
 import { BaseCommand } from '../../commands/BaseCommand';
-import { WorldMouse } from "../../commands";
+import { WorldMouse, Update } from "../../commands";
 import { lerp3 } from "../../Math";
 import { vec3 } from "gl-matrix";
 import * as Stats from 'stats.js';
@@ -15,7 +15,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         renderBodies:true
     }
 
-    private stats = new Stats();
     private renderer:THREE.WebGLRenderer;
     private camera:THREE.Camera;
     private scene:THREE.Scene;
@@ -31,8 +30,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         s.style.overflow = "hidden";
         this.renderer = new THREE.WebGLRenderer({antialias:true});
         document.body.appendChild(this.renderer.domElement);
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.dom);
         window.onresize = ()=>{
             this.renderer.setSize(window.innerWidth, window.innerHeight);
         }
@@ -47,7 +44,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
 
         
 
-        window.requestAnimationFrame(()=>this.onAnimationFrame());
+        //window.requestAnimationFrame(()=>this.onAnimationFrame());
     }
 
     private position:{[id:number]:Transform}[] = [{}, {}];
@@ -81,6 +78,10 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                     z:this.worldMouse.z
                 }
             })
+        }
+        else if (command.update)
+        {
+            this.onAnimationFrame(command.update);
         }
     }
 
@@ -190,28 +191,10 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
             s.top = v.y + 'px';
         }
     }
-    private onAnimationFrame()
+    private onAnimationFrame(update:Update)
     {
-        this.stats.begin();
-        this.frames++;
-        const now = performance.now() / 1000;
-        window.requestAnimationFrame((c)=>this.onAnimationFrame());
-        const deltaTime = now - this.lastFrame;
-        this.lastFrame = now;
-        const elapsed = (this.lastFrame - this.f.ticker.time);
-        const elapsedFactor = elapsed / (this.f.ticker.rateMS / 1000);
         this.updateWorldMouse();
-        this.f.executeCommand({
-            update:{
-                deltaTime:deltaTime,
-                elapsedSinceFixedUpdate:elapsed,
-                elapsedSinceFixedUpdateFactor:elapsedFactor,
-                time:now,
-                count:this.frames
-            }
-        });
-
-  
+        const elapsedFactor = update.elapsedSinceFixedUpdateFactor;
         this.f.forEachEntity(e=>{
             const transform = e.transform.get();
             const interpolate = !e.playerController.has || !e.playerController.get().disableInterpolation;
@@ -248,15 +231,7 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 this.camera.position.y = e.transform.get().position[1];
                 this.camera.position.z = e.transform.get().position[2];
             }
-
-            
-
-
-
-            
         }, e=>e.transform.has);
-
-
 
         // cleanup of deleted entities
         for (let id in this.meshes)
@@ -271,8 +246,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
         this.lastElapsedFactor = elapsedFactor;
 
         this.renderer.render(this.scene, this.camera);
-
-        this.stats.end();
     }
 
 }

@@ -5,11 +5,13 @@ import {BaseCommand} from './commands/BaseCommand';
 import { PlayerSystem } from './systems/PlayerSystem';
 import { BodySystem } from './systems';
 import { Mouse } from './commands';
+import * as Stats from 'stats.js';
 
 export class Frameworky<E extends BaseEntity, Command extends BaseCommand = BaseCommand>
 {
     readonly ticker = {count:0, time:0, rateMS:0 };
 
+    private stats = new Stats();
     private constructEntity:new(id:number)=>E;
     private nextId = 0;
     private entities = new Map<number, E>(); 
@@ -80,9 +82,52 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
         });
 
         document.oncontextmenu = ()=>false;
-        setInterval(()=>this.onTick(), this.ticker.rateMS);
         onReady(this);  
         this.initSystems();
+
+        this.stats.showPanel(1);
+        document.body.appendChild(this.stats.dom);
+
+        requestAnimationFrame(this.onAnimationFrame);
+
+    }
+
+    private animationFrameTime = 0;
+    private frames = 0;
+    private onAnimationFrame = (time:number)=>
+    {
+        this.stats.begin();
+        time /= 1000;
+        const deltaTime = time - this.animationFrameTime;
+        requestAnimationFrame(this.onAnimationFrame);
+        this.frames++;
+
+        if (this.ticker.time + this.ticker.rateMS / 1000 < time)
+        {
+            this.onTick();
+        }
+
+        const elapsed = (this.animationFrameTime - this.ticker.time);
+        const elapsedFactor = elapsed / (this.ticker.rateMS / 1000);
+
+        this.executeCommand({
+            update:{
+                count:this.frames,
+                deltaTime:deltaTime,
+                elapsedSinceFixedUpdate:elapsed,
+                elapsedSinceFixedUpdateFactor:elapsedFactor,
+                time:time
+            }
+        } as Command);
+
+      /*  this.executeCommand({
+            update:{
+
+            }
+        })*/
+        
+        this.animationFrameTime = time;
+        this.stats.end();
     }
 
     private initSystems()
