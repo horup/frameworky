@@ -3,7 +3,7 @@ import { Frameworky } from "../Frameworky";
 import { BaseEntity } from "../BaseEntity";
 import { BaseCommand } from "../commands/BaseCommand";
 //import {Engine, Bodies, Body, World} from 'matter-js';
-import * as CANNON from 'cannon';
+import * as CANNON from 'cannon-es';
 import { BodyShape } from "..";
 import { CircleBufferGeometry } from "three";
 import { vec3 } from "gl-matrix";
@@ -59,6 +59,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
         }
     }
 
+    lastTime = 0;
     executeCommand(f: Frameworky<BaseEntity>, command: BaseCommand) 
     {
         if (command.entityCreated)
@@ -71,7 +72,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
             {
                 const b = this.bodies.get(command.entityDeleted.id);
                 b.removeEventListener('collide', this.onCollide);
-                this.world.remove(b);
+                this.world.removeBody(b);
                 this.bodies.delete(command.entityDeleted.id);
             }
         }
@@ -93,7 +94,7 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 }
             }
         }
-        if (command.fixedUpdate)
+        if (command.update)
         {
             // store current position as previous
             f.forEachEntity(e=>{
@@ -128,8 +129,8 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
             }, e=>e.body.has && e.transform.has);
             
-            this.world.step(command.fixedUpdate.tickRate);
-
+            this.world.step(command.update.deltaTime);//, this.lastTime, 10);
+            this.lastTime = command.update.time;
             const deleted:number[] = [];
             // ensure bodies a syncronized back to transform and body component
             this.bodies.forEach((body,id)=>{

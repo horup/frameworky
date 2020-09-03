@@ -73,11 +73,14 @@ new Frameworky<Entity>(Entity, (f)=>{
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
     const max = 1000;
-    const spread = 10;
+    const spread = 1;
     for (let i = 0; i < max; i++)
     {
+        const spread = 1.1;
+        const x = (i % Math.floor(Math.sqrt(max))) * spread;
+        const y = (i / Math.floor(Math.sqrt(max))) * spread;
         const e = f.newEntity();
-        e.transform.attach(new Transform({position:[Math.random() * spread - spread/2 + 5, Math.random() * spread - spread/2, 0]}));
+        e.transform.attach(new Transform({position:[x, y, 0]}));
         e.health.attach({
             amount:3
         })
