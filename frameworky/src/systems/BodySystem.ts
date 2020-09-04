@@ -94,8 +94,9 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 }
             }
         }
-        if (command.update)
+        if (command.fixedUpdate)
         {
+            const update = command.fixedUpdate;
             // store current position as previous
             f.forEachEntity(e=>{
                 const t = e.transform.get();
@@ -129,8 +130,8 @@ export class BodySystem implements System<BaseEntity, BaseCommand>
                 body.velocity.set(b.velocity.x, b.velocity.y, b.velocity.z);  
             }, e=>e.body.has && e.transform.has);
             
-            this.world.step(command.update.deltaTime);//, this.lastTime, 10);
-            this.lastTime = command.update.time;
+            this.world.step(update.deltaTime);
+            //this.world.step(update.deltaTime, this.lastTime, 30);//, this.lastTime, 10);
             const deleted:number[] = [];
             // ensure bodies a syncronized back to transform and body component
             this.bodies.forEach((body,id)=>{
