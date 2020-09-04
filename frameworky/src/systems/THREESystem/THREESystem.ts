@@ -242,8 +242,6 @@ export class THREESystem implements System<BaseEntity, BaseCommand>
                 delete this.meshes[id];
             }
         }
-      
-        this.lastElapsedFactor = elapsedFactor;
 
         this.renderer.render(this.scene, this.camera);
     }

@@ -18,6 +18,7 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     private systems:System<E, Command>[] = [];
     private commandQueue:Command[] = [];
     private functionQueue:((f:this)=>void)[] = [];
+    frameskip = 1;
 
     keys:{[key:string]:boolean} = {};
     mouse:Mouse = {x:0, y:0, buttons:0};
@@ -96,38 +97,66 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
     private frames = 0;
     private onAnimationFrame = (time:number)=>
     {
-        this.stats.begin();
-        time /= 1000;
-        const deltaTime = time - this.animationFrameTime;
-        requestAnimationFrame(this.onAnimationFrame);
         this.frames++;
+        requestAnimationFrame(this.onAnimationFrame);
 
-        if (this.ticker.time + this.ticker.rateMS / 1000 < time)
+        if (this.frames % this.frameskip == 0)
         {
-            this.onTick();
+            this.stats.begin();
+            time /= 1000;
+            const deltaTime = time - this.animationFrameTime;
+
+            if (this.ticker.time + this.ticker.rateMS / 1000 < time)
+            {
+                // fixed update
+                const deltaTime = time - this.ticker.time;
+                this.ticker.time = time;
+                const cmds = this.commandQueue;
+                this.commandQueue = [];
+                cmds.forEach(c=>{
+                    if (c.entityDeleted)
+                        this.entities.delete(c.entityDeleted.id);
+                    this.executeCommand(c);
+                })
+                const fs = this.functionQueue;
+                this.functionQueue = [];
+                fs.forEach(func=>{
+                    func(this);
+                });
+                this.ticker.count++;
+                const ticker = this.ticker;
+                this.executeCommand({
+                    fixedUpdate:{
+                        time:ticker.time,
+                        tickRate:ticker.rateMS / 1000,
+                        deltaTime:deltaTime,
+                        count: ticker.count 
+                    }
+                } as Command);
+            }
+
+            const elapsed = (time - this.ticker.time);
+            const elapsedFactor = elapsed / (this.ticker.rateMS / 1000);
+
+            this.executeCommand({
+                update:{
+                    count:this.frames,
+                    deltaTime:deltaTime,
+                    elapsedSinceFixedUpdate:elapsed,
+                    elapsedSinceFixedUpdateFactor:elapsedFactor,
+                    time:time
+                }
+            } as Command);
+
+        /*  this.executeCommand({
+                update:{
+
+                }
+            })*/
+            
+            this.animationFrameTime = time;
+            this.stats.end();
         }
-
-        const elapsed = (this.animationFrameTime - this.ticker.time);
-        const elapsedFactor = elapsed / (this.ticker.rateMS / 1000);
-
-        this.executeCommand({
-            update:{
-                count:this.frames,
-                deltaTime:deltaTime,
-                elapsedSinceFixedUpdate:elapsed,
-                elapsedSinceFixedUpdateFactor:elapsedFactor,
-                time:time
-            }
-        } as Command);
-
-      /*  this.executeCommand({
-            update:{
-
-            }
-        })*/
-        
-        this.animationFrameTime = time;
-        this.stats.end();
     }
 
     private initSystems()
@@ -137,31 +166,7 @@ export class Frameworky<E extends BaseEntity, Command extends BaseCommand = Base
 
     private onTick()
     {
-        const now = this.now();
-        const deltaTime = now - this.ticker.time;
-        this.ticker.time = now;
-        const cmds = this.commandQueue;
-        this.commandQueue = [];
-        cmds.forEach(c=>{
-            if (c.entityDeleted)
-                this.entities.delete(c.entityDeleted.id);
-            this.executeCommand(c);
-        })
-        const fs = this.functionQueue;
-        this.functionQueue = [];
-        fs.forEach(func=>{
-            func(this);
-        });
-        this.ticker.count++;
-        const ticker = this.ticker;
-        this.executeCommand({
-            fixedUpdate:{
-                time:ticker.time,
-                tickRate:ticker.rateMS / 1000,
-                deltaTime:deltaTime,
-                count: ticker.count 
-            }
-        } as Command);
+        
     }
 
     addSystem(system:System<E, Command>)
