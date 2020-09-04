@@ -73,7 +73,6 @@ new Frameworky<Entity>(Entity, (f)=>{
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
     const max = 1000;
-    const spread = 1;
     for (let i = 0; i < max; i++)
     {
         const spread = 1.1;
