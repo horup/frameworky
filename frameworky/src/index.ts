@@ -10,3 +10,4 @@ export * from './Component';
 export * from 'gl-matrix';
 export * from './systems';
 export * from './Math';
+export * from './Interfaces';

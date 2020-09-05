@@ -1,4 +1,6 @@
-export class Text
+import { Clonable } from "../Interfaces";
+
+export class Text implements Clonable<Text>
 {
     text:string = "";
 
@@ -8,5 +10,9 @@ export class Text
         {
             this[k] = props[k];
         }
+    }
+    
+    cloneFrom(source: Text) {
+        throw new Error("Method not implemented.");
     }
 }

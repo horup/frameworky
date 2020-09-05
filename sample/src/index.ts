@@ -1,4 +1,4 @@
-import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem, Text, Transform} from 'frameworky';
+import {BaseEntity, BaseCommand, Component, Frameworky, System, Body, PlayerController, vec3, BodySystem, Text, Transform, Camera} from 'frameworky';
        
 interface Health
 {
@@ -61,9 +61,9 @@ new Frameworky<Entity>(Entity, (f)=>{
     camera.transform.attach(new Transform({
         position:[0,0,20]
     }));
-    camera.camera.attach({
+    camera.camera.attach(new Camera({
         isActive:true
-    })
+    }));
 
     const player = f.newEntity();
     player.text.attach(new Text({
@@ -73,6 +73,11 @@ new Frameworky<Entity>(Entity, (f)=>{
     player.body.attach(new Body({linearDamping:0.99}));
     player.playerController.attach(new PlayerController());
     const max = 1000;
+
+    const test = new Entity(-1);
+    test.cloneFrom(camera);
+    console.log(test);
+
     for (let i = 0; i < max; i++)
     {
         const spread = 1.1;

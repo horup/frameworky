@@ -1,9 +1,11 @@
+import { Clonable } from "../Interfaces";
+
 export enum BodyShape
 {
     Sphere = 1
 }
 
-export class Body
+export class Body implements Clonable<Body>
 {
     constructor(props:Partial<Body> = null)
     {
@@ -12,6 +14,16 @@ export class Body
             for (let k in props)
                 this[k] = props[k];
         }
+    }
+    cloneFrom(source: Body) 
+    {
+        this.mass = source.mass;
+        this.shape = source.shape;
+        this.linearDamping = source.linearDamping;
+        this.velocity.x = source.velocity.x;
+        this.velocity.y = source.velocity.y;
+        this.velocity.z = source.velocity.z;
+        this.collisionResponse = source.collisionResponse;
     }
     mass:number = 1;
     shape:BodyShape = BodyShape.Sphere;
